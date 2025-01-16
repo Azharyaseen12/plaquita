@@ -1,0 +1,284 @@
+.overall-edit-page {
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 20px;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+.canvas-container {
+    flex: 2;
+    text-align: center;
+    position: relative;
+    width: 100%;
+    max-width: 500px; /* Maintain maximum width */
+    margin: 0 auto;
+}
+
+canvas {
+    border: 1px solid #ccc;
+    width: 100%;
+    height: auto; /* Keep aspect ratio */
+    display: block;
+    margin: 0 auto;
+}
+
+.controls-container {
+    flex: 1;
+    width: 100%;
+    max-width: 400px; /* Restrict maximum width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.color-button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.toolbar {
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.toolbar label {
+    font-weight: bold;
+    text-align: center;
+}
+
+.text-wrapper {
+    position: absolute;
+    overflow: hidden;
+    border: 4px dashed #999;
+    width: 80%; /* Responsive width relative to canvas */
+    height: 50%; /* Responsive height relative to canvas */
+    top: 25%; /* Center vertically */
+    left: 10%; /* Center horizontally */
+    box-sizing: border-box;
+}
+
+.text-area {
+    position: absolute;
+    width: 60%; /* Relative to text-wrapper */
+    height: 20%; /* Relative to text-wrapper */
+    border: 1px dashed #999;
+    text-align: center;
+    /* background: rgba(255, 255, 255, 0.8); */
+    box-sizing: border-box;
+}
+
+.text-area input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    font-size: 1rem;
+    background: transparent;
+    outline: none;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.handle.close {
+    top: -10px;
+    left: -10px;
+    background: red;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.handle.resize {
+    bottom: -10px;
+    right: -10px;
+    cursor: nwse-resize;
+}
+
+.handle.rotate {
+    top: -10px;
+    right: -10px;
+    cursor: pointer;
+}
+
+.handle.copy {
+    bottom: -10px;
+    left: -10px;
+  }
+.handle.move {
+    bottom: -10px;
+    left: -10px;
+    cursor: move;
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.drag-region {
+    position: absolute;
+    border: 1px dashed #999;
+    pointer-events: none;
+    width: 80%; /* Centered region width */
+    height: 50%; /* Centered region height */
+    top: 25%; /* Adjust for centering vertically */
+    left: 10%; /* Adjust for centering horizontally */
+    box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .overall-edit-page{
+        flex-direction: column;
+    }
+    .canvas-container {
+        max-width: 90%;
+    }
+
+    .controls-container {
+        max-width: 90%;
+    }
+
+    .text-wrapper {
+        width: 90%; /* Reduce width for smaller screens */
+        height: 50%;
+        top: 20%; /* Center adjust */
+        left: 5%;
+    }
+}
+.predefined-templates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.template {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.template:hover {
+    background: #ddd;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 80%;
+    max-width: 500px;
+  }
+  
+  .modal-content .close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .icon-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .icon {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+  }
+  .predefined-templates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .template {
+    border: 1px solid #ccc;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+  }
+  
+  .template:hover {
+    background-color: #f0f0f0;
+  }
+  .clipart-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .clipart {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 5px;
+    transition: transform 0.2s;
+  }
+
+  .clipart:hover {
+    transform: scale(1.1);
+    border-color: #0d6efd;
+  }
