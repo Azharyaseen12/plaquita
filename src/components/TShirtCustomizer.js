@@ -4,17 +4,11 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./tshirtcustumizer.css";
 import Tshirtimg from "../images/tshirt.png";
 import Logo from "../images/logo.png";
-import clipart1 from "../cliparts/clipart1.png";
-import clipart2 from "../cliparts/clipart2.png";
-import clipart3 from "../cliparts/clipart3.png";
-import clipart4 from "../cliparts/clipart4.png";
-import clipart5 from "../cliparts/clipart5.png";
-import clipart6 from "../cliparts/clipart6.png";
-import clipart7 from "../cliparts/clipart7.png";
-import icon1 from "../icons/leaf.png"
-import icon2 from "../icons/leaf2.png"
-import icon3 from "../icons/braslet.png"
-import icon4 from "../icons/horse.png"
+import Shapes from "./Shapes";
+import UploadSection from "./UploadSection";
+import ClipartSection from "./ClipartSection";
+import AddTextOptions from "./AddTextOptions";
+import ProductOptions from "./ProductOptions";
 const TShirtCustomizer = () => {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -534,17 +528,20 @@ const TShirtCustomizer = () => {
               >
                 <i className="fas fa-images"></i> Clip Arts
               </a>
-              <a className="nav-link" href="#">
+              <a className={`nav-link ${
+                  activeSidebar === "layer" ? "active" : ""
+                }`} onClick={() => setActiveSidebar("layer")} href="#">
                 <i className="fas fa-layer-group"></i> Layers
               </a>
               <a
-                className={`nav-link ${activeSidebar === "shapes" ? "active" : ""}`}
+                className={`nav-link ${
+                  activeSidebar === "shapes" ? "active" : ""
+                }`}
                 href="#"
                 onClick={() => setActiveSidebar("shapes")}
               >
                 <i className="fas fa-shapes"></i> Shapes
               </a>
-
             </nav>
           </div>
 
@@ -554,373 +551,19 @@ const TShirtCustomizer = () => {
               {/* Left Section */}
               <div className="col-lg-4 col-md-12 pt-4 mb-4 left-section">
                 {activeSidebar === "product" ? (
-                  <>
-                    <h3>Unisex Staple T-Shirt</h3>
-                    <div className="d-flex align-items-center mb-3">
-                      <span className="text-warning me-2">4.5 &#9733;</span>
-                      <button className="btn btn-outline-primary btn-sm">
-                        Change Product
-                      </button>
-                    </div>
-                    <div>
-                      <h5>Color</h5>
-                      <div className="color-options d-flex flex-wrap">
-                        {[
-                          "rgb(255, 0, 0)",
-                          "rgb(0, 0, 255)",
-                          "rgb(0, 255, 0)",
-                          "rgb(255, 255, 0)",
-                          "rgb(128, 0, 128)",
-                          "rgb(0, 0, 0)",
-                          "rgb(255, 192, 203)",
-                          "rgb(255, 165, 0)",
-                          "rgb(0, 128, 128)",
-                          "rgb(165, 42, 42)",
-                        ].map((color) => (
-                          <button
-                            key={color}
-                            style={{
-                              backgroundColor: color,
-                              width: "35px",
-                              height: "35px",
-                              borderRadius: "10px",
-                              border: "none",
-                              margin: "10px",
-                            }}
-                            onClick={() => changeColor(color)}
-                          ></button>
-                        ))}
-                      </div>
-                      <div className="mt-3">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <h5 className="mb-0">Size</h5>
-                          <a
-                            href="/"
-                            className="text-decoration-none text-primary"
-                          >
-                            Size Guide
-                          </a>
-                        </div>
-                        <div className="size-options d-flex flex-wrap">
-                          {["S", "M", "L", "XL", "2XL", "3XL"].map((size) => (
-                            <div
-                              className="d-flex align-items-center me-3 mb-2"
-                              key={size}
-                            >
-                              <div className="size-option me-2">{size}</div>
-                              <input
-                                type="number"
-                                className="form-control form-control-sm"
-                                style={{ width: "50px" }}
-                                placeholder="Qty"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </>
+                   <ProductOptions changeColor={changeColor} />
                 ) : activeSidebar === "addText" ? (
-                  <div>
-                    <h3>Add Text Options</h3>
-                    <p>Use the toolbar to customize your text.</p>
-                    <div className="toolbar">
-                      <label htmlFor="fontSelector">Font Family:</label>
-                      <select
-                        id="fontSelector"
-                        className="form-select"
-                        onChange={(e) =>
-                          updateTextStyle("fontFamily", e.target.value)
-                        }
-                      >
-                        {[
-                          "Arial",
-                          "Verdana",
-                          "Georgia",
-                          "Courier New",
-                          "Times New Roman",
-                          "Trebuchet MS",
-                          "Comic Sans MS",
-                          "Impact",
-                          "Tahoma",
-                          "Helvetica",
-                        ].map((font) => (
-                          <option
-                            key={font}
-                            value={font}
-                            style={{ fontFamily: font }}
-                          >
-                            {font}
-                          </option>
-                        ))}
-                      </select>
-
-                      <label htmlFor="fontSizeSelector">Font Size:</label>
-                      <select
-                        id="fontSizeSelector"
-                        className="form-select"
-                        onChange={(e) =>
-                          updateTextStyle("fontSize", `${e.target.value}px`)
-                        }
-                      >
-                        {[12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56].map(
-                          (size) => (
-                            <option key={size} value={size}>
-                              {size}px
-                            </option>
-                          )
-                        )}
-                      </select>
-
-                      <label htmlFor="textColorPicker">Text Color:</label>
-                      <input
-                        type="color"
-                        id="textColorPicker"
-                        className="form-control"
-                        onChange={(e) =>
-                          updateTextStyle("color", e.target.value)
-                        }
-                      />
-
-                      <button
-                        className="btn btn-primary mt-3"
-                        onClick={addText}
-                      >
-                        Add Text
-                      </button>
-                    </div>
-
-                    {/* Display Predefined Templates */}
-                    <h5 className="mt-4">Predefined Templates</h5>
-                    <div className="predefined-templates d-flex flex-wrap">
-                      <div
-                        className="template p-2 border m-2"
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                          addTemplate(
-                            "Hello",
-                            "Arial",
-                            "16px",
-                            "normal",
-                            "normal",
-                            "#000"
-                          )
-                        }
-                      >
-                        <p
-                          style={{
-                            fontFamily: "Arial",
-                            fontSize: "16px",
-                            color: "#000",
-                          }}
-                        >
-                          Hello
-                        </p>
-                      </div>
-                      <div
-                        className="template p-2 border m-2"
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                          addTemplate(
-                            "Bold Text",
-                            "Arial",
-                            "16px",
-                            "normal",
-                            "bold",
-                            "#000"
-                          )
-                        }
-                      >
-                        <p
-                          style={{
-                            fontFamily: "Arial",
-                            fontSize: "16px",
-                            color: "#000",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Bold Text
-                        </p>
-                      </div>
-                      <div
-                        className="template p-2 border m-2"
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                          addTemplate(
-                            "Red Text",
-                            "Arial",
-                            "16px",
-                            "normal",
-                            "bold",
-                            "red"
-                          )
-                        }
-                      >
-                        <p
-                          style={{
-                            fontFamily: "Arial",
-                            fontSize: "16px",
-                            color: "red",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Red Text
-                        </p>
-                      </div>
-                      <div
-                        className="template p-2 border m-2"
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                          addTemplate(
-                            "Italic Text",
-                            "Arial",
-                            "16px",
-                            "italic",
-                            "normal",
-                            "#000"
-                          )
-                        }
-                      >
-                        <p
-                          style={{
-                            fontFamily: "Arial",
-                            fontSize: "16px",
-                            color: "#000",
-                            fontStyle: "italic",
-                          }}
-                        >
-                          Italic Text
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : activeSidebar === "addText" ? (
-                  <div>
-                    <h3>Add Text Options</h3>
-                    <p>Use the toolbar to customize your text.</p>
-                    <div className="toolbar">
-                      {/* Toolbar for text options */}
-                    </div>
-                    <h5 className="mt-4">Predefined Templates</h5>
-                    <div className="predefined-templates d-flex flex-wrap">
-                      {/* Predefined text templates */}
-                    </div>
-                  </div>
+                  <AddTextOptions
+                    updateTextStyle={updateTextStyle}
+                    addText={addText}
+                    addTemplate={addTemplate}
+                  />
                 ) : activeSidebar === "clipart" ? (
-                  <div>
-                    <h3>Select Clipart</h3>
-                    <p>Choose from the available cliparts below:</p>
-                    <div className="clipart-gallery d-flex flex-wrap">
-                      {[
-                        { src: clipart1, alt: "Clipart 1" },
-                        { src: clipart2, alt: "Clipart 2" },
-                        { src: clipart3, alt: "Clipart 3" },
-                        { src: clipart4, alt: "Clipart 4" },
-                        { src: clipart5, alt: "Clipart 5" },
-                        { src: clipart6, alt: "Clipart 6" },
-                        { src: clipart7, alt: "Clipart 7" },
-                      ].map((clipart, index) => (
-                        <div
-                          key={index}
-                          className="clipart-item p-2 border m-2"
-                          style={{
-                            cursor: "pointer",
-                            width: "100px",
-                            height: "100px",
-                            overflow: "hidden",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                          onClick={() => addClipartToCanvas(clipart.src)}
-                        >
-                          <img
-                            src={clipart.src}
-                            alt={clipart.alt}
-                            style={{
-                              width: "100%",
-                              height: "auto",
-                              maxHeight: "100%",
-                            }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <ClipartSection addClipartToCanvas={addClipartToCanvas} />
                 ) : activeSidebar === "upload" ? (
-                  <div>
-                    <h3>Upload Image</h3>
-                    <p>Upload your custom image to add it to the canvas:</p>
-                    <input
-                      type="file"
-                      id="uploadImageInput"
-                      style={{ display: "none" }}
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            // Call addClipartToCanvas with the uploaded image
-                            addClipartToCanvas(
-                              event.target.result,
-                            );
-                          };
-                          reader.readAsDataURL(file); // Read the uploaded image as a data URL
-                        }
-                        // Reset input value to allow re-uploading the same file
-                        e.target.value = null;
-                      }}
-                    />
-                    <button
-                      className="btn btn-primary"
-                      onClick={() =>
-                        document.getElementById("uploadImageInput").click()
-                      }
-                    >
-                      Upload Image
-                    </button>
-                  </div>
+                  <UploadSection addClipartToCanvas={addClipartToCanvas} />
                 ) : activeSidebar === "shapes" ? (
-                  <div>
-                    <h3>Select an Icon</h3>
-                    <p>Choose from the available shapes below:</p>
-                    <div className="icon-list d-flex flex-wrap">
-                      {[
-                        { src: icon1, alt: "Leaf" },
-                        { src: icon2, alt: "Leaf 2" },
-                        { src: icon3, alt: "Bracelet" },
-                        { src: icon4, alt: "Horse" },
-                      ].map((icon, index) => (
-                        <div
-                          key={index}
-                          className="icon-item p-2 m-2"
-                          style={{
-                            cursor: "pointer",
-                            width: "100px",
-                            height: "100px",
-                            overflow: "hidden",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            border: "1px solid #ccc",
-                            borderRadius: "8px",
-                          }}
-                          onClick={() => addClipartToCanvas(icon.src)}
-                        >
-                          <img
-                            src={icon.src}
-                            alt={icon.alt}
-                            style={{
-                              width: "100%",
-                              height: "auto",
-                              maxHeight: "100%",
-                            }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <Shapes addClipartToCanvas={addClipartToCanvas} />
                 ) : null}
               </div>
 
@@ -950,7 +593,7 @@ const TShirtCustomizer = () => {
                       id="tshirtCanvas"
                       width={500}
                       height={600}
-                      style={{ border: "1px solid #ccc" }}
+                      style={{ border: "none" }}
                     ></canvas>
                     <div
                       ref={dragRegionRef}
