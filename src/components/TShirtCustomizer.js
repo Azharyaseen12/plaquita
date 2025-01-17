@@ -274,16 +274,16 @@ const TShirtCustomizer = () => {
 
     ctx.putImageData(imageData, 0, 0);
   };
- const saveCanvasWithOverlays = () => {
+  const saveCanvasWithOverlays = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const image = imgRef.current;
   
-    // Clear and redraw the T-shirt image
+    // Clear the canvas and draw the T-shirt base image
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
   
-    // Apply the selected color overlay
+    // Reapply the selected color
     if (selectedColor) {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
@@ -303,15 +303,17 @@ const TShirtCustomizer = () => {
     }
   
     const dragRegion = dragRegionRef.current;
+    const dragRegionRect = dragRegion.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+  
     const elements = dragRegion.children;
-    const savedData = [];
   
     Array.from(elements).forEach((element) => {
       const rect = element.getBoundingClientRect();
-      const canvasRect = canvas.getBoundingClientRect();
-      const x = rect.left - canvasRect.left;
-      const y = rect.top - canvasRect.top;
+      const elementLeft = rect.left - canvasRect.left;
+      const elementTop = rect.top - canvasRect.top;
   
+      // Render text overlays
       if (element.querySelector("input")) {
         const input = element.querySelector("input");
         const font = window.getComputedStyle(input).font;
@@ -321,60 +323,28 @@ const TShirtCustomizer = () => {
         ctx.fillStyle = color;
         ctx.fillText(
           input.value,
-          x,
-          y + parseInt(window.getComputedStyle(input).fontSize)
+          elementLeft,
+          elementTop + parseInt(window.getComputedStyle(input).fontSize)
         );
+      }
   
-        // Save text data
-        savedData.push({
-          type: "text",
-          value: input.value,
-          style: {
-            font,
-            color,
-          },
-          position: { x, y },
-        });
-      } else if (element.querySelector("img")) {
+      // Render image overlays
+      if (element.querySelector("img")) {
         const img = element.querySelector("img");
-        const imgSrc = img.src;
-        const imgWidth = img.offsetWidth;
-        const imgHeight = img.offsetHeight;
+        const width = parseInt(window.getComputedStyle(img).width);
+        const height = parseInt(window.getComputedStyle(img).height);
   
-        ctx.drawImage(img, x, y, imgWidth, imgHeight);
-  
-        // Save image data
-        savedData.push({
-          type: "image",
-          src: imgSrc,
-          position: { x, y },
-          size: { width: imgWidth, height: imgHeight },
-        });
+        ctx.drawImage(img, elementLeft, elementTop, width, height);
       }
     });
   
-    // Save the design data as JSON
-    const designData = {
-      baseImage: Tshirtimg,
-      color: selectedColor,
-      overlays: savedData,
-    };
-  
-    const designJSON = JSON.stringify(designData);
-  
-    // Save as JSON file
-    const jsonBlob = new Blob([designJSON], { type: "application/json" });
-    const jsonLink = document.createElement("a");
-    jsonLink.href = URL.createObjectURL(jsonBlob);
-    jsonLink.download = "tshirt_design.json";
-    jsonLink.click();
-  
-    // Optionally, you can also allow users to download the final image
+    // Save the canvas as an image
     const link = document.createElement("a");
     link.download = "tshirt_design.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
-  }; 
+  };
+  
   
   const updateTextStyle = (styleProp, value) => {
     if (currentTextBox) {
