@@ -4,13 +4,13 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./tshirtcustumizer.css";
 import Tshirtimg from "../images/tshirt.png";
 import Logo from "../images/logo.png";
-import clipart1 from "../cliparts/clipart1.png"
-import clipart2 from "../cliparts/clipart2.png"
-import clipart3 from "../cliparts/clipart3.png"
-import clipart4 from "../cliparts/clipart4.png"
-import clipart5 from "../cliparts/clipart5.png"
-import clipart6 from "../cliparts/clipart6.png"
-import clipart7 from "../cliparts/clipart7.png"
+import clipart1 from "../cliparts/clipart1.png";
+import clipart2 from "../cliparts/clipart2.png";
+import clipart3 from "../cliparts/clipart3.png";
+import clipart4 from "../cliparts/clipart4.png";
+import clipart5 from "../cliparts/clipart5.png";
+import clipart6 from "../cliparts/clipart6.png";
+import clipart7 from "../cliparts/clipart7.png";
 const TShirtCustomizer = () => {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -55,38 +55,34 @@ const TShirtCustomizer = () => {
   const initializeEventListeners = () => {
     const dragRegion = dragRegionRef.current;
     const textBoxes = dragRegion.querySelectorAll(".text-area");
-  
+
     textBoxes.forEach((textBox) => {
       // Ensure the textBox has all event listeners reattached
-      textBox
-        .querySelector(".handle.close")
-        .addEventListener("click", () => {
-          dragRegion.removeChild(textBox);
-          saveState();
+      textBox.querySelector(".handle.close").addEventListener("click", () => {
+        dragRegion.removeChild(textBox);
+        saveState();
+      });
+
+      textBox.querySelector(".handle.rotate").addEventListener("click", () => {
+        const currentRotation =
+          textBox.style.transform.replace(/[^0-9]/g, "") || 0;
+        textBox.style.transform = `rotate(${
+          parseInt(currentRotation) + 15
+        }deg)`;
+        saveState();
+      });
+
+      textBox.querySelector(".handle.copy").addEventListener("click", () => {
+        const input = textBox.querySelector("input");
+        const inputStyle = input.getAttribute("style");
+        addText({
+          value: input.value,
+          top: `${parseInt(textBox.style.top) + 20}px`,
+          left: `${parseInt(textBox.style.left) + 20}px`,
+          style: inputStyle, // Pass the style attribute of the input
         });
-  
-      textBox
-        .querySelector(".handle.rotate")
-        .addEventListener("click", () => {
-          const currentRotation =
-            textBox.style.transform.replace(/[^0-9]/g, "") || 0;
-          textBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
-          saveState();
-        });
-  
-      textBox
-        .querySelector(".handle.copy")
-        .addEventListener("click", () => {
-          const input = textBox.querySelector("input");
-          const inputStyle = input.getAttribute("style");
-          addText({
-            value: input.value,
-            top: `${parseInt(textBox.style.top) + 20}px`,
-            left: `${parseInt(textBox.style.left) + 20}px`,
-            style: inputStyle, // Pass the style attribute of the input
-          });
-        });
-  
+      });
+
       textBox.addEventListener("mousedown", (e) => handleDragStart(e, textBox));
       textBox
         .querySelector(".handle.resize")
@@ -99,7 +95,7 @@ const TShirtCustomizer = () => {
       setRedoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
       dragRegionRef.current.innerHTML = lastState;
       setUndoStack([...undoStack]);
-  
+
       // Reinitialize event listeners after restoring state
       initializeEventListeners();
     } else {
@@ -112,7 +108,7 @@ const TShirtCustomizer = () => {
       setUndoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
       dragRegionRef.current.innerHTML = nextState;
       setRedoStack([...redoStack]);
-  
+
       // Reinitialize event listeners after restoring state
       initializeEventListeners();
     } else {
@@ -121,34 +117,36 @@ const TShirtCustomizer = () => {
   };
   const handleDragStart = (e, textBox) => {
     setCurrentTextBox(textBox);
-  
+
     const dragRegion = dragRegionRef.current;
     const dragRegionRect = dragRegion.getBoundingClientRect();
     const textBoxRect = textBox.getBoundingClientRect();
-  
+
     const offsetX = e.clientX - textBoxRect.left;
     const offsetY = e.clientY - textBoxRect.top;
-  
+
     const handleDragging = (e) => {
       if (!textBox || !dragRegion) return; // Null check to prevent errors
-  
+
       const newLeft = e.clientX - offsetX - dragRegionRect.left;
       const newTop = e.clientY - offsetY - dragRegionRect.top;
-  
+
       // Apply new positions
       textBox.style.left = `${newLeft}px`;
       textBox.style.top = `${newTop}px`;
-  
+
       const input = textBox.querySelector("input, img"); // Support both input and img
-  
+
       if (input) {
         // Ensure `input` exists before accessing its style
         const textBoxRect = textBox.getBoundingClientRect();
         const isOutsideLeft = newLeft < 0;
         const isOutsideTop = newTop < 0;
-        const isOutsideRight = newLeft + textBoxRect.width > dragRegionRect.width;
-        const isOutsideBottom = newTop + textBoxRect.height > dragRegionRect.height;
-  
+        const isOutsideRight =
+          newLeft + textBoxRect.width > dragRegionRect.width;
+        const isOutsideBottom =
+          newTop + textBoxRect.height > dragRegionRect.height;
+
         const clipLeft = isOutsideLeft ? Math.abs(newLeft) : 0;
         const clipTop = isOutsideTop ? Math.abs(newTop) : 0;
         const clipRight = isOutsideRight
@@ -157,17 +155,19 @@ const TShirtCustomizer = () => {
         const clipBottom = isOutsideBottom
           ? dragRegionRect.height - newTop
           : textBoxRect.height;
-  
-        input.style.clipPath = `inset(${clipTop}px ${textBoxRect.width - clipRight}px ${textBoxRect.height - clipBottom}px ${clipLeft}px)`;
+
+        input.style.clipPath = `inset(${clipTop}px ${
+          textBoxRect.width - clipRight
+        }px ${textBoxRect.height - clipBottom}px ${clipLeft}px)`;
       }
     };
-  
+
     const handleDragEnd = () => {
       document.removeEventListener("mousemove", handleDragging);
       document.removeEventListener("mouseup", handleDragEnd);
       saveState(); // Save the current state after dragging
     };
-  
+
     document.addEventListener("mousemove", handleDragging);
     document.addEventListener("mouseup", handleDragEnd);
   };
@@ -197,14 +197,14 @@ const TShirtCustomizer = () => {
     const dragRegion = dragRegionRef.current;
     const textBox = document.createElement("div");
     textBox.classList.add("text-area");
-  
+
     // If copyData is provided, use its values; otherwise, set defaults
     const textValue = copyData?.value || "Your Text";
     const textTop = copyData?.top || "50px";
     const textLeft = copyData?.left || "50px";
     const textStyle =
       copyData?.style || "font-family: Arial; font-size: 16px; color: black;";
-  
+
     textBox.innerHTML = `
       <input type="text" value="${textValue}" style="${textStyle}" />
       <div class="handle close">X</div>
@@ -212,28 +212,28 @@ const TShirtCustomizer = () => {
       <div class="handle rotate">↻</div>
       <div class="handle copy">⧉</div>
     `;
-  
+
     // Position the text box
     textBox.style.position = "absolute";
     textBox.style.top = textTop;
     textBox.style.left = textLeft;
-  
+
     dragRegion.appendChild(textBox);
     saveState();
-  
+
     // Add event listeners for functionality
     textBox.querySelector(".handle.close").addEventListener("click", () => {
       dragRegion.removeChild(textBox);
       saveState();
     });
-  
+
     textBox.querySelector(".handle.rotate").addEventListener("click", () => {
       const currentRotation =
         textBox.style.transform.replace(/[^0-9]/g, "") || 0;
       textBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
       saveState();
     });
-  
+
     textBox.querySelector(".handle.copy").addEventListener("click", () => {
       const input = textBox.querySelector("input");
       const inputStyle = input.getAttribute("style");
@@ -244,7 +244,7 @@ const TShirtCustomizer = () => {
         style: inputStyle, // Pass the style attribute of the input
       });
     });
-  
+
     textBox.addEventListener("mousedown", (e) => handleDragStart(e, textBox));
     textBox
       .querySelector(".handle.resize")
@@ -340,7 +340,7 @@ const TShirtCustomizer = () => {
   };
   const printCanvas = () => {
     const canvas = canvasRef.current;
-  
+
     // Convert canvas to image data
     const dataUrl = canvas.toDataURL("image/png");
     const printWindow = window.open("", "_blank");
@@ -363,10 +363,10 @@ const TShirtCustomizer = () => {
     const dragRegion = dragRegionRef.current;
     const textBox = document.createElement("div");
     textBox.classList.add("text-area");
-  
+
     // Construct the text style
     const textStyle = `font-family: ${fontFamily}; font-size: ${fontSize}; font-style: ${fontStyle}; font-weight: ${fontWeight}; color: ${color};`;
-  
+
     // Set the HTML for the text box
     textBox.innerHTML = `
       <input type="text" value="${text}" style="${textStyle}" />
@@ -375,28 +375,28 @@ const TShirtCustomizer = () => {
       <div class="handle rotate">↻</div>
       <div class="handle copy">⧉</div>
     `;
-  
+
     // Position the text box
     textBox.style.position = "absolute";
     textBox.style.top = positionTop;
     textBox.style.left = positionLeft;
-  
+
     dragRegion.appendChild(textBox);
     saveState();
-  
+
     // Add event listeners for functionality
     textBox.querySelector(".handle.close").addEventListener("click", () => {
       dragRegion.removeChild(textBox);
       saveState();
     });
-  
+
     textBox.querySelector(".handle.rotate").addEventListener("click", () => {
       const currentRotation =
         textBox.style.transform.replace(/[^0-9]/g, "") || 0;
       textBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
       saveState();
     });
-  
+
     textBox.querySelector(".handle.copy").addEventListener("click", () => {
       const input = textBox.querySelector("input");
       const inputStyle = input.getAttribute("style");
@@ -407,7 +407,7 @@ const TShirtCustomizer = () => {
         style: inputStyle,
       });
     });
-  
+
     textBox.addEventListener("mousedown", (e) => handleDragStart(e, textBox));
     textBox
       .querySelector(".handle.resize")
@@ -423,7 +423,7 @@ const TShirtCustomizer = () => {
     const dragRegion = dragRegionRef.current;
     const clipartBox = document.createElement("div");
     clipartBox.classList.add("text-area");
-  
+
     // Set the HTML for the clipart box
     clipartBox.innerHTML = `
       <img src="${clipartSrc}" style="width: ${width}; height: ${height};" />
@@ -432,28 +432,30 @@ const TShirtCustomizer = () => {
       <div class="handle rotate">↻</div>
       <div class="handle copy">⧉</div>
     `;
-  
+
     // Position the clipart box
     clipartBox.style.position = "absolute";
     clipartBox.style.top = positionTop;
     clipartBox.style.left = positionLeft;
-  
+
     dragRegion.appendChild(clipartBox);
     saveState();
-  
+
     // Add event listeners for functionality
     clipartBox.querySelector(".handle.close").addEventListener("click", () => {
       dragRegion.removeChild(clipartBox);
       saveState();
     });
-  
+
     clipartBox.querySelector(".handle.rotate").addEventListener("click", () => {
       const currentRotation =
         clipartBox.style.transform.replace(/[^0-9]/g, "") || 0;
-      clipartBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
+      clipartBox.style.transform = `rotate(${
+        parseInt(currentRotation) + 15
+      }deg)`;
       saveState();
     });
-  
+
     clipartBox.querySelector(".handle.copy").addEventListener("click", () => {
       addClipartToCanvas(
         clipartSrc,
@@ -463,384 +465,482 @@ const TShirtCustomizer = () => {
         height
       );
     });
-  
-    clipartBox.addEventListener("mousedown", (e) => handleDragStart(e, clipartBox));
+
+    clipartBox.addEventListener("mousedown", (e) =>
+      handleDragStart(e, clipartBox)
+    );
     clipartBox
       .querySelector(".handle.resize")
       .addEventListener("mousedown", (e) => handleResizeStart(e, clipartBox));
-  };    
+  };
   return (
     <div>
-    <nav className="navbar navbar-light bg-white px-4 py-2 border-bottom">
-      <a className="navbar-brand" href="/">
-        <img src={Logo} alt="Logo" style={{ height: "40px" }} />
-      </a>
-      <div className="d-flex align-items-center">
-        <select className="form-select me-3" style={{ width: "100px" }}>
-          <option value="en">EN</option>
-          <option value="es">ES</option>
-        </select>
-        <span className="me-3 fw-bold">$10.15</span>
-        <button className="btn btn-primary">Add to Cart</button>
-      </div>
-    </nav>
-    <div className="container-fluid">
-      <div className="row">
-        {/* Sidebar */}
-        <div className="col-lg-2 col-md-3 sidebar">
-          <nav className="nav flex-column">
-            <a
-              className={`nav-link ${
-                activeSidebar === "product" ? "active" : ""
-              }`}
-              href="#"
-              onClick={() => setActiveSidebar("product")}
-            >
-              <i className="fas fa-tshirt"></i> Product
-            </a>
-            <a
-              className={`nav-link ${
-                activeSidebar === "addText" ? "active" : ""
-              }`}
-              href="#"
-              onClick={() => setActiveSidebar("addText")}
-            >
-              <i className="fas fa-font"></i> Add Text
-            </a>
-            <a className="nav-link" href="#">
-              <i className="fas fa-upload"></i> Upload
-            </a>
-            <a
-              className={`nav-link ${activeSidebar === "clipart" ? "active" : ""}`}
-              href="#"
-              onClick={() => setActiveSidebar("clipart")}
-            >
-              <i className="fas fa-images"></i> Clip Arts
-            </a>
-            <a className="nav-link" href="#">
-              <i className="fas fa-layer-group"></i> Layers
-            </a>
-            <a className="nav-link" href="#">
-              <i className="fas fa-folder-open"></i> Shapes
-            </a>
-          </nav>
+      <nav className="navbar navbar-light bg-white px-4 py-2 border-bottom">
+        <a className="navbar-brand" href="/">
+          <img src={Logo} alt="Logo" style={{ height: "40px" }} />
+        </a>
+        <div className="d-flex align-items-center">
+          <select className="form-select me-3" style={{ width: "100px" }}>
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+          </select>
+          <span className="me-3 fw-bold">$10.15</span>
+          <button className="btn btn-primary">Add to Cart</button>
         </div>
-  
-        {/* Main Content */}
-        <div className="col-lg-10 col-md-9">
-          <div className="row">
-            {/* Left Section */}
-            <div className="col-lg-4 col-md-12 pt-4 mb-4 left-section">
-              {activeSidebar === "product" ? (
-                <>
-                  <h3>Unisex Staple T-Shirt</h3>
-                  <div className="d-flex align-items-center mb-3">
-                    <span className="text-warning me-2">4.5 &#9733;</span>
-                    <button className="btn btn-outline-primary btn-sm">
-                      Change Product
-                    </button>
-                  </div>
-                  <div>
-                    <h5>Color</h5>
-                    <div className="color-options d-flex flex-wrap">
-                      {[
-                        "rgb(255, 0, 0)",
-                        "rgb(0, 0, 255)",
-                        "rgb(0, 255, 0)",
-                        "rgb(255, 255, 0)",
-                        "rgb(128, 0, 128)",
-                        "rgb(0, 0, 0)",
-                        "rgb(255, 192, 203)",
-                        "rgb(255, 165, 0)",
-                        "rgb(0, 128, 128)",
-                        "rgb(165, 42, 42)",
-                      ].map((color) => (
-                        <button
-                          key={color}
-                          style={{
-                            backgroundColor: color,
-                            width: "35px",
-                            height: "35px",
-                            borderRadius: "10px",
-                            border: "none",
-                            margin: "10px",
-                          }}
-                          onClick={() => changeColor(color)}
-                        ></button>
-                      ))}
+      </nav>
+      <div className="container-fluid">
+        <div className="row">
+          {/* Sidebar */}
+          <div className="col-lg-2 col-md-3 sidebar">
+            <nav className="nav flex-column">
+              <a
+                className={`nav-link ${
+                  activeSidebar === "product" ? "active" : ""
+                }`}
+                href="#"
+                onClick={() => setActiveSidebar("product")}
+              >
+                <i className="fas fa-tshirt"></i> Product
+              </a>
+              <a
+                className={`nav-link ${
+                  activeSidebar === "addText" ? "active" : ""
+                }`}
+                href="#"
+                onClick={() => setActiveSidebar("addText")}
+              >
+                <i className="fas fa-font"></i> Add Text
+              </a>
+              <a
+                className={`nav-link ${
+                  activeSidebar === "upload" ? "active" : ""
+                }`}
+                href="#"
+                onClick={() => setActiveSidebar("upload")}
+              >
+                <i className="fas fa-upload"></i> Upload
+              </a>
+
+              <a
+                className={`nav-link ${
+                  activeSidebar === "clipart" ? "active" : ""
+                }`}
+                href="#"
+                onClick={() => setActiveSidebar("clipart")}
+              >
+                <i className="fas fa-images"></i> Clip Arts
+              </a>
+              <a className="nav-link" href="#">
+                <i className="fas fa-layer-group"></i> Layers
+              </a>
+              <a className="nav-link" href="#">
+                <i className="fas fa-folder-open"></i> Shapes
+              </a>
+            </nav>
+          </div>
+
+          {/* Main Content */}
+          <div className="col-lg-10 col-md-9">
+            <div className="row">
+              {/* Left Section */}
+              <div className="col-lg-4 col-md-12 pt-4 mb-4 left-section">
+                {activeSidebar === "product" ? (
+                  <>
+                    <h3>Unisex Staple T-Shirt</h3>
+                    <div className="d-flex align-items-center mb-3">
+                      <span className="text-warning me-2">4.5 &#9733;</span>
+                      <button className="btn btn-outline-primary btn-sm">
+                        Change Product
+                      </button>
                     </div>
-                    <div className="mt-3">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h5 className="mb-0">Size</h5>
-                        <a
-                          href="/"
-                          className="text-decoration-none text-primary"
-                        >
-                          Size Guide
-                        </a>
-                      </div>
-                      <div className="size-options d-flex flex-wrap">
-                        {["S", "M", "L", "XL", "2XL", "3XL"].map((size) => (
-                          <div
-                            className="d-flex align-items-center me-3 mb-2"
-                            key={size}
-                          >
-                            <div className="size-option me-2">{size}</div>
-                            <input
-                              type="number"
-                              className="form-control form-control-sm"
-                              style={{ width: "50px" }}
-                              placeholder="Qty"
-                            />
-                          </div>
+                    <div>
+                      <h5>Color</h5>
+                      <div className="color-options d-flex flex-wrap">
+                        {[
+                          "rgb(255, 0, 0)",
+                          "rgb(0, 0, 255)",
+                          "rgb(0, 255, 0)",
+                          "rgb(255, 255, 0)",
+                          "rgb(128, 0, 128)",
+                          "rgb(0, 0, 0)",
+                          "rgb(255, 192, 203)",
+                          "rgb(255, 165, 0)",
+                          "rgb(0, 128, 128)",
+                          "rgb(165, 42, 42)",
+                        ].map((color) => (
+                          <button
+                            key={color}
+                            style={{
+                              backgroundColor: color,
+                              width: "35px",
+                              height: "35px",
+                              borderRadius: "10px",
+                              border: "none",
+                              margin: "10px",
+                            }}
+                            onClick={() => changeColor(color)}
+                          ></button>
                         ))}
                       </div>
+                      <div className="mt-3">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <h5 className="mb-0">Size</h5>
+                          <a
+                            href="/"
+                            className="text-decoration-none text-primary"
+                          >
+                            Size Guide
+                          </a>
+                        </div>
+                        <div className="size-options d-flex flex-wrap">
+                          {["S", "M", "L", "XL", "2XL", "3XL"].map((size) => (
+                            <div
+                              className="d-flex align-items-center me-3 mb-2"
+                              key={size}
+                            >
+                              <div className="size-option me-2">{size}</div>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                style={{ width: "50px" }}
+                                placeholder="Qty"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : activeSidebar === "addText" ? (
+                  <div>
+                    <h3>Add Text Options</h3>
+                    <p>Use the toolbar to customize your text.</p>
+                    <div className="toolbar">
+                      <label htmlFor="fontSelector">Font Family:</label>
+                      <select
+                        id="fontSelector"
+                        className="form-select"
+                        onChange={(e) =>
+                          updateTextStyle("fontFamily", e.target.value)
+                        }
+                      >
+                        {[
+                          "Arial",
+                          "Verdana",
+                          "Georgia",
+                          "Courier New",
+                          "Times New Roman",
+                          "Trebuchet MS",
+                          "Comic Sans MS",
+                          "Impact",
+                          "Tahoma",
+                          "Helvetica",
+                        ].map((font) => (
+                          <option
+                            key={font}
+                            value={font}
+                            style={{ fontFamily: font }}
+                          >
+                            {font}
+                          </option>
+                        ))}
+                      </select>
+
+                      <label htmlFor="fontSizeSelector">Font Size:</label>
+                      <select
+                        id="fontSizeSelector"
+                        className="form-select"
+                        onChange={(e) =>
+                          updateTextStyle("fontSize", `${e.target.value}px`)
+                        }
+                      >
+                        {[12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56].map(
+                          (size) => (
+                            <option key={size} value={size}>
+                              {size}px
+                            </option>
+                          )
+                        )}
+                      </select>
+
+                      <label htmlFor="textColorPicker">Text Color:</label>
+                      <input
+                        type="color"
+                        id="textColorPicker"
+                        className="form-control"
+                        onChange={(e) =>
+                          updateTextStyle("color", e.target.value)
+                        }
+                      />
+
+                      <button
+                        className="btn btn-primary mt-3"
+                        onClick={addText}
+                      >
+                        Add Text
+                      </button>
+                    </div>
+
+                    {/* Display Predefined Templates */}
+                    <h5 className="mt-4">Predefined Templates</h5>
+                    <div className="predefined-templates d-flex flex-wrap">
+                      <div
+                        className="template p-2 border m-2"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          addTemplate(
+                            "Hello",
+                            "Arial",
+                            "16px",
+                            "normal",
+                            "normal",
+                            "#000"
+                          )
+                        }
+                      >
+                        <p
+                          style={{
+                            fontFamily: "Arial",
+                            fontSize: "16px",
+                            color: "#000",
+                          }}
+                        >
+                          Hello
+                        </p>
+                      </div>
+                      <div
+                        className="template p-2 border m-2"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          addTemplate(
+                            "Bold Text",
+                            "Arial",
+                            "16px",
+                            "normal",
+                            "bold",
+                            "#000"
+                          )
+                        }
+                      >
+                        <p
+                          style={{
+                            fontFamily: "Arial",
+                            fontSize: "16px",
+                            color: "#000",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Bold Text
+                        </p>
+                      </div>
+                      <div
+                        className="template p-2 border m-2"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          addTemplate(
+                            "Red Text",
+                            "Arial",
+                            "16px",
+                            "normal",
+                            "bold",
+                            "red"
+                          )
+                        }
+                      >
+                        <p
+                          style={{
+                            fontFamily: "Arial",
+                            fontSize: "16px",
+                            color: "red",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Red Text
+                        </p>
+                      </div>
+                      <div
+                        className="template p-2 border m-2"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          addTemplate(
+                            "Italic Text",
+                            "Arial",
+                            "16px",
+                            "italic",
+                            "normal",
+                            "#000"
+                          )
+                        }
+                      >
+                        <p
+                          style={{
+                            fontFamily: "Arial",
+                            fontSize: "16px",
+                            color: "#000",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          Italic Text
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </>
-              ) : activeSidebar === "addText" ? (
-                <div>
-                  <h3>Add Text Options</h3>
-                  <p>Use the toolbar to customize your text.</p>
-                  <div className="toolbar">
-                    <label htmlFor="fontSelector">Font Family:</label>
-                    <select
-                      id="fontSelector"
-                      className="form-select"
-                      onChange={(e) => updateTextStyle("fontFamily", e.target.value)}
-                    >
+                ) : activeSidebar === "addText" ? (
+                  <div>
+                    <h3>Add Text Options</h3>
+                    <p>Use the toolbar to customize your text.</p>
+                    <div className="toolbar">
+                      {/* Toolbar for text options */}
+                    </div>
+                    <h5 className="mt-4">Predefined Templates</h5>
+                    <div className="predefined-templates d-flex flex-wrap">
+                      {/* Predefined text templates */}
+                    </div>
+                  </div>
+                ) : activeSidebar === "clipart" ? (
+                  <div>
+                    <h3>Select Clipart</h3>
+                    <p>Choose from the available cliparts below:</p>
+                    <div className="clipart-gallery d-flex flex-wrap">
                       {[
-                        "Arial",
-                        "Verdana",
-                        "Georgia",
-                        "Courier New",
-                        "Times New Roman",
-                        "Trebuchet MS",
-                        "Comic Sans MS",
-                        "Impact",
-                        "Tahoma",
-                        "Helvetica",
-                      ].map((font) => (
-                        <option key={font} value={font} style={{ fontFamily: font }}>
-                          {font}
-                        </option>
+                        { src: clipart1, alt: "Clipart 1" },
+                        { src: clipart2, alt: "Clipart 2" },
+                        { src: clipart3, alt: "Clipart 3" },
+                        { src: clipart4, alt: "Clipart 4" },
+                        { src: clipart5, alt: "Clipart 5" },
+                        { src: clipart6, alt: "Clipart 6" },
+                        { src: clipart7, alt: "Clipart 7" },
+                      ].map((clipart, index) => (
+                        <div
+                          key={index}
+                          className="clipart-item p-2 border m-2"
+                          style={{
+                            cursor: "pointer",
+                            width: "100px",
+                            height: "100px",
+                            overflow: "hidden",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                          onClick={() => addClipartToCanvas(clipart.src)}
+                        >
+                          <img
+                            src={clipart.src}
+                            alt={clipart.alt}
+                            style={{
+                              width: "100%",
+                              height: "auto",
+                              maxHeight: "100%",
+                            }}
+                          />
+                        </div>
                       ))}
-                    </select>
-              
-                    <label htmlFor="fontSizeSelector">Font Size:</label>
-                    <select
-                      id="fontSizeSelector"
-                      className="form-select"
-                      onChange={(e) => updateTextStyle("fontSize", `${e.target.value}px`)}
-                    >
-                      {[12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56].map((size) => (
-                        <option key={size} value={size}>
-                          {size}px
-                        </option>
-                      ))}
-                    </select>
-              
-                    <label htmlFor="textColorPicker">Text Color:</label>
+                    </div>
+                  </div>
+                ) : activeSidebar === "upload" ? (
+                  <div>
+                    <h3>Upload Image</h3>
+                    <p>Upload your custom image to add it to the canvas:</p>
                     <input
-                      type="color"
-                      id="textColorPicker"
-                      className="form-control"
-                      onChange={(e) => updateTextStyle("color", e.target.value)}
+                      type="file"
+                      id="uploadImageInput"
+                      style={{ display: "none" }}
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            // Call addClipartToCanvas with the uploaded image
+                            addClipartToCanvas(
+                              event.target.result,
+                            );
+                          };
+                          reader.readAsDataURL(file); // Read the uploaded image as a data URL
+                        }
+                        // Reset input value to allow re-uploading the same file
+                        e.target.value = null;
+                      }}
                     />
-              
-                    <button className="btn btn-primary mt-3" onClick={addText}>
-                      Add Text
+                    <button
+                      className="btn btn-primary"
+                      onClick={() =>
+                        document.getElementById("uploadImageInput").click()
+                      }
+                    >
+                      Upload Image
                     </button>
                   </div>
-              
-                  {/* Display Predefined Templates */}
-                  <h5 className="mt-4">Predefined Templates</h5>
-                  <div className="predefined-templates d-flex flex-wrap">
-                    <div
-                      className="template p-2 border m-2"
-                      style={{ cursor: "pointer" }}
-                      onClick={() =>
-                        addTemplate("Hello", "Arial", "16px", "normal", "normal", "#000")
-                      }
-                    >
-                      <p style={{ fontFamily: "Arial", fontSize: "16px", color: "#000" }}>
-                        Hello
-                      </p>
-                    </div>
-                    <div
-                      className="template p-2 border m-2"
-                      style={{ cursor: "pointer" }}
-                      onClick={() =>
-                        addTemplate("Bold Text", "Arial", "16px", "normal", "bold", "#000")
-                      }
-                    >
-                      <p
-                        style={{
-                          fontFamily: "Arial",
-                          fontSize: "16px",
-                          color: "#000",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Bold Text
-                      </p>
-                    </div>
-                    <div
-                      className="template p-2 border m-2"
-                      style={{ cursor: "pointer" }}
-                      onClick={() =>
-                        addTemplate("Red Text", "Arial", "16px", "normal", "bold", "red")
-                      }
-                    >
-                      <p
-                        style={{
-                          fontFamily: "Arial",
-                          fontSize: "16px",
-                          color: "red",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Red Text
-                      </p>
-                    </div>
-                    <div
-                      className="template p-2 border m-2"
-                      style={{ cursor: "pointer" }}
-                      onClick={() =>
-                        addTemplate("Italic Text", "Arial", "16px", "italic", "normal", "#000")
-                      }
-                    >
-                      <p
-                        style={{
-                          fontFamily: "Arial",
-                          fontSize: "16px",
-                          color: "#000",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        Italic Text
-                      </p>
-                    </div>
+                ) : null}
+              </div>
+
+              {/* Right Section */}
+              <div className="col-lg-8 col-md-12 pt-4 right-section">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div className="product-tabs">
+                    {["Front", "Back", "Left Sleeve", "Right Sleeve"].map(
+                      (tab, index) => (
+                        <button
+                          key={tab}
+                          className={index === 0 ? "active" : ""}
+                        >
+                          {tab}
+                        </button>
+                      )
+                    )}
                   </div>
+                  <button className="btn btn-outline-danger btn-sm">
+                    Back to Shop
+                  </button>
                 </div>
-              ) : activeSidebar === "addText" ? (
-                <div>
-                  <h3>Add Text Options</h3>
-                  <p>Use the toolbar to customize your text.</p>
-                  <div className="toolbar">
-                    {/* Toolbar for text options */}
-                  </div>
-                  <h5 className="mt-4">Predefined Templates</h5>
-                  <div className="predefined-templates d-flex flex-wrap">
-                    {/* Predefined text templates */}
-                  </div>
-                </div>
-              ) : activeSidebar === "clipart" ? (
-                <div>
-                <h3>Select Clipart</h3>
-                <p>Choose from the available cliparts below:</p>
-                <div className="clipart-gallery d-flex flex-wrap">
-                  {[
-                    { src: clipart1, alt: "Clipart 1" },
-                    { src: clipart2, alt: "Clipart 2" },
-                    { src: clipart3, alt: "Clipart 3" },
-                    { src: clipart4, alt: "Clipart 4" },
-                    { src: clipart5, alt: "Clipart 5" },
-                    { src: clipart6, alt: "Clipart 6" },
-                    { src: clipart7, alt: "Clipart 7" },
-                  ].map((clipart, index) => (
+                <div className="text-center card p-3">
+                  <div className="canvas-container">
+                    <canvas
+                      ref={canvasRef}
+                      id="tshirtCanvas"
+                      width={500}
+                      height={600}
+                      style={{ border: "1px solid #ccc" }}
+                    ></canvas>
                     <div
-                      key={index}
-                      className="clipart-item p-2 border m-2"
+                      ref={dragRegionRef}
+                      id="dragRegion"
                       style={{
-                        cursor: "pointer",
-                        width: "100px",
-                        height: "100px",
-                        overflow: "hidden",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        position: "absolute",
+                        border: "2px dashed #999",
+                        ...dragRegionStyle,
                       }}
-                      onClick={() => addClipartToCanvas(clipart.src)}
-                    >
-                      <img
-                        src={clipart.src}
-                        alt={clipart.alt}
-                        style={{ width: "100%", height: "auto", maxHeight: "100%" }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              ) : null}
-              
-            </div>
-  
-            {/* Right Section */}
-            <div className="col-lg-8 col-md-12 pt-4 right-section">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <div className="product-tabs">
-                  {["Front", "Back", "Left Sleeve", "Right Sleeve"].map(
-                    (tab, index) => (
-                      <button
-                        key={tab}
-                        className={index === 0 ? "active" : ""}
+                    ></div>
+                  </div>
+                  <div className="action-buttons d-flex justify-content-around align-items-center">
+                    {[
+                      { icon: "fa-undo", label: "Undo", action: undo },
+                      { icon: "fa-redo", label: "Redo", action: redo },
+                      { icon: "fa-print", label: "Print", action: printCanvas },
+                      {
+                        icon: "fa-save",
+                        label: "Save",
+                        action: saveCanvasWithOverlays,
+                      },
+                      {
+                        icon: "fa-share-alt",
+                        label: "Share",
+                        action: () =>
+                          alert("Share functionality not implemented yet!"),
+                      },
+                    ].map(({ icon, label, action }) => (
+                      <div
+                        className="action-item text-center"
+                        key={label}
+                        onClick={action}
+                        style={{ cursor: "pointer" }}
                       >
-                        {tab}
-                      </button>
-                    )
-                  )}
-                </div>
-                <button className="btn btn-outline-danger btn-sm">
-                  Back to Shop
-                </button>
-              </div>
-              <div className="text-center card p-3">
-                <div className="canvas-container">
-                  <canvas
-                    ref={canvasRef}
-                    id="tshirtCanvas"
-                    width={500}
-                    height={600}
-                    style={{ border: "1px solid #ccc" }}
-                  ></canvas>
-                  <div
-                    ref={dragRegionRef}
-                    id="dragRegion"
-                    style={{
-                      position: "absolute",
-                      border: "2px dashed #999",
-                      ...dragRegionStyle,
-                    }}
-                  ></div>
-                </div>
-                <div className="action-buttons d-flex justify-content-around align-items-center">
-                  {[
-                    { icon: "fa-undo", label: "Undo", action: undo },
-                    { icon: "fa-redo", label: "Redo", action: redo },
-                    { icon: "fa-print", label: "Print", action: printCanvas },
-                    {
-                      icon: "fa-save",
-                      label: "Save",
-                      action: saveCanvasWithOverlays,
-                    },
-                    {
-                      icon: "fa-share-alt",
-                      label: "Share",
-                      action: () =>
-                        alert("Share functionality not implemented yet!"),
-                    },
-                  ].map(({ icon, label, action }) => (
-                    <div
-                      className="action-item text-center"
-                      key={label}
-                      onClick={action}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <i className={`fas ${icon}`}></i>
-                      <p className="mt-1 mb-0 small">{label}</p>
-                    </div>
-                  ))}
+                        <i className={`fas ${icon}`}></i>
+                        <p className="mt-1 mb-0 small">{label}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -848,7 +948,6 @@ const TShirtCustomizer = () => {
         </div>
       </div>
     </div>
-  </div>
   );
 };
 
