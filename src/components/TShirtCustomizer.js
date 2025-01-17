@@ -38,7 +38,6 @@ const TShirtCustomizer = () => {
     window.addEventListener("resize", centerDragRegion);
     return () => window.removeEventListener("resize", centerDragRegion);
   }, []);
-
   const centerDragRegion = () => {
     const canvas = canvasRef.current;
     const canvasRect = canvas.getBoundingClientRect();
@@ -49,7 +48,6 @@ const TShirtCustomizer = () => {
       top: `${(canvasRect.height - canvasRect.height * 0.5) / 2}px`,
     });
   };
-
   const saveState = () => {
     setUndoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
     setRedoStack([]);
@@ -173,7 +171,6 @@ const TShirtCustomizer = () => {
     document.addEventListener("mousemove", handleDragging);
     document.addEventListener("mouseup", handleDragEnd);
   };
-  
   const handleResizeStart = (e, textBox) => {
     const startX = e.clientX;
     const startY = e.clientY;
@@ -279,7 +276,6 @@ const TShirtCustomizer = () => {
 
     ctx.putImageData(imageData, 0, 0);
   };
-
   const saveCanvasWithOverlays = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -421,8 +417,8 @@ const TShirtCustomizer = () => {
     clipartSrc,
     positionTop = "50px",
     positionLeft = "50px",
-    width = "100px",
-    height = "100px"
+    width = "100%",
+    height = "100%"
   ) => {
     const dragRegion = dragRegionRef.current;
     const clipartBox = document.createElement("div");
@@ -472,10 +468,7 @@ const TShirtCustomizer = () => {
     clipartBox
       .querySelector(".handle.resize")
       .addEventListener("mousedown", (e) => handleResizeStart(e, clipartBox));
-  };
-  
-  
-    
+  };    
   return (
     <div>
     <nav className="navbar navbar-light bg-white px-4 py-2 border-bottom">
