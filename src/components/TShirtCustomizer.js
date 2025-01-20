@@ -19,7 +19,6 @@ const TShirtCustomizer = () => {
   const [redoStack, setRedoStack] = useState([]);
   const [currentTextBox, setCurrentTextBox] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -29,41 +28,45 @@ const TShirtCustomizer = () => {
   
     const checkDragRegionContent = () => {
       const dragRegion = dragRegionRef.current;
-      if (dragRegion.querySelectorAll(".text-area, .selected").length === 0) {
-        dragRegion.style.border = "none"; // Remove border if no selected text areas or images
-      } else {
+      if (dragRegion.querySelector(".selected")) {
         dragRegion.style.border = "2px dashed #999"; // Show border if selection exists
+      } else {
+        dragRegion.style.border = "none"; // Hide border if no selection
       }
     };
   
     const handleSelection = (e) => {
-      const target = e.target;
       const dragRegion = dragRegionRef.current;
+      const target = e.target;
   
       if (dragRegion.contains(target)) {
-        // Check if the clicked element is a text area or image
-        if (target.classList.contains("text-area") || target.classList.contains("image")) {
-          target.classList.add("selected"); // Mark as selected
-          dragRegion.style.border = "2px dashed #999"; // Show drag region border
-        } else {
-          clearSelections(); // Clear previous selections
+        // Ensure the target is inside the drag region
+        if (
+          target.classList.contains("text-area") ||
+          target.classList.contains("image")
+        ) {
+          // Toggle selection only on click
+          clearSelections();
+          target.classList.add("selected");
+          checkDragRegionContent(); // Update the border
         }
       } else {
-        clearSelections(); // Clear selections if clicked outside drag region
-        dragRegion.style.border = "none"; // Hide drag region border
+        clearSelections(); // Clear selections when clicked outside
+        checkDragRegionContent(); // Update the border
       }
     };
   
     const clearSelections = () => {
-      const selectedElements = dragRegionRef.current.querySelectorAll(".selected");
-      selectedElements.forEach((el) => el.classList.remove("selected")); // Remove selection class
+      const dragRegion = dragRegionRef.current;
+      const selectedElements = dragRegion.querySelectorAll(".selected");
+      selectedElements.forEach((el) => el.classList.remove("selected"));
     };
   
     image.onload = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       centerDragRegion();
-      checkDragRegionContent(); // Initial check when the image loads
+      checkDragRegionContent(); // Initial check for drag region content
     };
   
     window.addEventListener("resize", centerDragRegion);
@@ -82,6 +85,7 @@ const TShirtCustomizer = () => {
       observer.disconnect();
     };
   }, []);
+  
   const centerDragRegion = () => {
     const canvas = canvasRef.current;
     const canvasRect = canvas.getBoundingClientRect();
