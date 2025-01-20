@@ -29,11 +29,34 @@ const TShirtCustomizer = () => {
   
     const checkDragRegionContent = () => {
       const dragRegion = dragRegionRef.current;
-      if (dragRegion.querySelectorAll(".text-area").length === 0) {
-        dragRegion.style.border = "none"; // Remove border if no text areas
+      if (dragRegion.querySelectorAll(".text-area, .selected").length === 0) {
+        dragRegion.style.border = "none"; // Remove border if no selected text areas or images
       } else {
-        dragRegion.style.border = "2px dashed #999"; // Show border if text areas exist
+        dragRegion.style.border = "2px dashed #999"; // Show border if selection exists
       }
+    };
+  
+    const handleSelection = (e) => {
+      const target = e.target;
+      const dragRegion = dragRegionRef.current;
+  
+      if (dragRegion.contains(target)) {
+        // Check if the clicked element is a text area or image
+        if (target.classList.contains("text-area") || target.classList.contains("image")) {
+          target.classList.add("selected"); // Mark as selected
+          dragRegion.style.border = "2px dashed #999"; // Show drag region border
+        } else {
+          clearSelections(); // Clear previous selections
+        }
+      } else {
+        clearSelections(); // Clear selections if clicked outside drag region
+        dragRegion.style.border = "none"; // Hide drag region border
+      }
+    };
+  
+    const clearSelections = () => {
+      const selectedElements = dragRegionRef.current.querySelectorAll(".selected");
+      selectedElements.forEach((el) => el.classList.remove("selected")); // Remove selection class
     };
   
     image.onload = () => {
@@ -44,6 +67,7 @@ const TShirtCustomizer = () => {
     };
   
     window.addEventListener("resize", centerDragRegion);
+    document.addEventListener("click", handleSelection);
   
     // Observe mutations to dynamically check content in dragRegion
     const observer = new MutationObserver(() => {
@@ -54,6 +78,7 @@ const TShirtCustomizer = () => {
   
     return () => {
       window.removeEventListener("resize", centerDragRegion);
+      document.removeEventListener("click", handleSelection);
       observer.disconnect();
     };
   }, []);
