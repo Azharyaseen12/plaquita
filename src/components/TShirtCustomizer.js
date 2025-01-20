@@ -26,15 +26,36 @@ const TShirtCustomizer = () => {
     const image = new Image();
     image.src = Tshirtimg;
     imgRef.current = image;
-
+  
+    const checkDragRegionContent = () => {
+      const dragRegion = dragRegionRef.current;
+      if (dragRegion.querySelectorAll(".text-area").length === 0) {
+        dragRegion.style.border = "none"; // Remove border if no text areas
+      } else {
+        dragRegion.style.border = "2px dashed #999"; // Show border if text areas exist
+      }
+    };
+  
     image.onload = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       centerDragRegion();
+      checkDragRegionContent(); // Initial check when the image loads
     };
-
+  
     window.addEventListener("resize", centerDragRegion);
-    return () => window.removeEventListener("resize", centerDragRegion);
+  
+    // Observe mutations to dynamically check content in dragRegion
+    const observer = new MutationObserver(() => {
+      checkDragRegionContent();
+    });
+  
+    observer.observe(dragRegionRef.current, { childList: true });
+  
+    return () => {
+      window.removeEventListener("resize", centerDragRegion);
+      observer.disconnect();
+    };
   }, []);
   const centerDragRegion = () => {
     const canvas = canvasRef.current;
@@ -278,18 +299,18 @@ const TShirtCustomizer = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const image = imgRef.current;
-  
+
     // Clear the canvas and draw the T-shirt base image
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-  
+
     // Reapply the selected color
     if (selectedColor) {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
-  
+
       const [red, green, blue] = selectedColor.match(/\d+/g).map(Number);
-  
+
       for (let i = 0; i < data.length; i += 4) {
         const lightness = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
         if (lightness > 0.2 && data[i + 3] > 0) {
@@ -298,27 +319,27 @@ const TShirtCustomizer = () => {
           data[i + 2] = blue * lightness;
         }
       }
-  
+
       ctx.putImageData(imageData, 0, 0);
     }
-  
+
     const dragRegion = dragRegionRef.current;
     const dragRegionRect = dragRegion.getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
-  
+
     const elements = dragRegion.children;
-  
+
     Array.from(elements).forEach((element) => {
       const rect = element.getBoundingClientRect();
       const elementLeft = rect.left - canvasRect.left;
       const elementTop = rect.top - canvasRect.top;
-  
+
       // Render text overlays
       if (element.querySelector("input")) {
         const input = element.querySelector("input");
         const font = window.getComputedStyle(input).font;
         const color = window.getComputedStyle(input).color;
-  
+
         ctx.font = font;
         ctx.fillStyle = color;
         ctx.fillText(
@@ -327,25 +348,24 @@ const TShirtCustomizer = () => {
           elementTop + parseInt(window.getComputedStyle(input).fontSize)
         );
       }
-  
+
       // Render image overlays
       if (element.querySelector("img")) {
         const img = element.querySelector("img");
         const width = parseInt(window.getComputedStyle(img).width);
         const height = parseInt(window.getComputedStyle(img).height);
-  
+
         ctx.drawImage(img, elementLeft, elementTop, width, height);
       }
     });
-  
+
     // Save the canvas as an image
     const link = document.createElement("a");
     link.download = "tshirt_design.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
-  
-  
+
   const updateTextStyle = (styleProp, value) => {
     if (currentTextBox) {
       const input = currentTextBox.querySelector("input");
@@ -545,9 +565,13 @@ const TShirtCustomizer = () => {
               >
                 <i className="fas fa-images"></i> Clip Arts
               </a>
-              <a className={`nav-link ${
+              <a
+                className={`nav-link ${
                   activeSidebar === "layer" ? "active" : ""
-                }`} onClick={() => setActiveSidebar("layer")} href="#">
+                }`}
+                onClick={() => setActiveSidebar("layer")}
+                href="#"
+              >
                 <i className="fas fa-layer-group"></i> Layers
               </a>
               <a
@@ -568,7 +592,7 @@ const TShirtCustomizer = () => {
               {/* Left Section */}
               <div className="col-lg-4 col-md-12 pt-4 mb-4 left-section">
                 {activeSidebar === "product" ? (
-                   <ProductOptions changeColor={changeColor} />
+                  <ProductOptions changeColor={changeColor} />
                 ) : activeSidebar === "addText" ? (
                   <AddTextOptions
                     updateTextStyle={updateTextStyle}
