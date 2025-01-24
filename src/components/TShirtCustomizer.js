@@ -328,18 +328,18 @@ const TShirtCustomizer = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const image = imgRef.current;
-
+  
     // Clear the canvas and draw the T-shirt base image
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
+  
     // Reapply the selected color
     if (selectedColor) {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
-
+  
       const [red, green, blue] = selectedColor.match(/\d+/g).map(Number);
-
+  
       for (let i = 0; i < data.length; i += 4) {
         const lightness = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
         if (lightness > 0.2 && data[i + 3] > 0) {
@@ -348,27 +348,39 @@ const TShirtCustomizer = () => {
           data[i + 2] = blue * lightness;
         }
       }
-
+  
       ctx.putImageData(imageData, 0, 0);
     }
-
+  
     const dragRegion = dragRegionRef.current;
     const dragRegionRect = dragRegion.getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
-
+  
+    // Calculate the clipping region relative to the canvas
+    const clipX = dragRegionRect.left - canvasRect.left;
+    const clipY = dragRegionRect.top - canvasRect.top;
+    const clipWidth = dragRegionRect.width;
+    const clipHeight = dragRegionRect.height;
+  
+    // Clip to the dragRegion area
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(clipX, clipY, clipWidth, clipHeight);
+    ctx.clip();
+  
     const elements = dragRegion.children;
-
+  
     Array.from(elements).forEach((element) => {
       const rect = element.getBoundingClientRect();
       const elementLeft = rect.left - canvasRect.left;
       const elementTop = rect.top - canvasRect.top;
-
+  
       // Render text overlays
       if (element.querySelector("input")) {
         const input = element.querySelector("input");
         const font = window.getComputedStyle(input).font;
         const color = window.getComputedStyle(input).color;
-
+  
         ctx.font = font;
         ctx.fillStyle = color;
         ctx.fillText(
@@ -377,23 +389,26 @@ const TShirtCustomizer = () => {
           elementTop + parseInt(window.getComputedStyle(input).fontSize)
         );
       }
-
+  
       // Render image overlays
       if (element.querySelector("img")) {
         const img = element.querySelector("img");
         const width = parseInt(window.getComputedStyle(img).width);
         const height = parseInt(window.getComputedStyle(img).height);
-
+  
         ctx.drawImage(img, elementLeft, elementTop, width, height);
       }
     });
-
+  
+    ctx.restore(); // Restore the canvas state after clipping
+  
     // Save the canvas as an image
     const link = document.createElement("a");
     link.download = "tshirt_design.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
+  
 
   const updateTextStyle = (styleProp, value) => {
     if (currentTextBox) {
