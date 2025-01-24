@@ -372,9 +372,17 @@ const TShirtCustomizer = () => {
   
     Array.from(elements).forEach((element) => {
       const rect = element.getBoundingClientRect();
-      const elementLeft = rect.left - canvasRect.left;
-      const elementTop = rect.top - canvasRect.top;
+      let elementLeft = rect.left - canvasRect.left;
+      let elementTop = rect.top - canvasRect.top;
   
+      if (element.querySelector("input")) {
+        elementLeft += 27; // Add 2px for text
+        elementTop += 20; // Add 20px for text
+      } else if (element.querySelector("img")) {
+        elementLeft += 2.5; // Add 2px for text
+        elementTop += 2; // Add 2px for images
+      }
+      
       // Render text overlays
       if (element.querySelector("input")) {
         const input = element.querySelector("input");
