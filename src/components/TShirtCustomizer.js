@@ -277,15 +277,16 @@ const TShirtCustomizer = () => {
   };
 
   const handleResizeStart = (e, textBox, layerId) => {
+    if (!textBox) return;
     const startX = e.clientX;
     const startY = e.clientY;
     const startWidth = textBox.offsetWidth;
     const startHeight = textBox.offsetHeight;
 
-    const input = textBox.querySelector("input"); // Get the text input element
+    const input = textBox.querySelector("input, img"); // Get the text input element
+    if (!input) return; // Prevent errors if the input field does not exist
     const computedStyle = window.getComputedStyle(input);
     const startFontSize = parseFloat(computedStyle.fontSize); // Get the initial font size
-
     const handleResizing = (e) => {
         const newWidth = Math.max(startWidth + (e.clientX - startX), 50);
         const newHeight = Math.max(startHeight + (e.clientY - startY), 30);
@@ -590,11 +591,13 @@ const TShirtCustomizer = () => {
     clipartBox.addEventListener("mousedown", (e) =>
       handleDragStart(e, clipartBox, layerId)
     );
-    clipartBox
-      .querySelector(".handle.resize")
-      .addEventListener("mousedown", (e) =>
+    const resizeHandle = clipartBox.querySelector(".handle.resize");
+    if (resizeHandle) {
+      resizeHandle.addEventListener("mousedown", (e) =>
         handleResizeStart(e, clipartBox, layerId)
       );
+    }
+
   };
 
   const undo = () => {
