@@ -30,6 +30,26 @@ const TShirtCustomizer = () => {
   };
 
   // Function to highlight the selected layer
+  const checkDragRegionContent = () => {
+    const dragRegion = dragRegionRef.current;
+    if (dragRegion.querySelector(".selected")) {
+      dragRegion.style.border = "2px dashed #999"; // Show border if a selection exists
+    } else {
+      dragRegion.style.border = "none"; // Hide border if no selection
+    }
+  };
+    
+  // Click event listener to detect clicks outside the layers
+  document.addEventListener("click", (e) => {
+    const dragRegion = dragRegionRef.current;
+    
+    if (!dragRegion.contains(e.target)) {
+      // If click is outside the drag region, deselect everything
+      highlightSelectedLayer(null);
+    }
+  });
+  
+  // Function to highlight the selected layer
   const highlightSelectedLayer = (layerId) => {
     const layers = dragRegionRef.current.querySelectorAll(".text-area");
     layers.forEach((layer) => {
@@ -37,22 +57,31 @@ const TShirtCustomizer = () => {
       const rotateButton = layer.querySelector(".handle.rotate");
       const copyButton = layer.querySelector(".handle.copy");
       const resizeButton = layer.querySelector(".handle.resize");
-
+  
       if (layer.id === layerId) {
-        layer.style.border = "3px dotted gray"; // Highlight selected layer
+        layer.classList.add("selected"); // Mark the selected layer
+        layer.style.border = "2px dashed gray"; // Add selection border
+  
+        // Show controls for the selected layer
         closeButton.style.display = "block";
         rotateButton.style.display = "block";
         copyButton.style.display = "block";
         resizeButton.style.display = "block";
       } else {
-        layer.style.border = "none"; // Deselect other layers
+        layer.classList.remove("selected"); // Remove selection from others
+        layer.style.border = "none"; // Remove border
+  
+        // Hide controls for unselected layers
         closeButton.style.display = "none";
         rotateButton.style.display = "none";
         copyButton.style.display = "none";
         resizeButton.style.display = "none";
       }
     });
+  
+    checkDragRegionContent(); // Update drag region border visibility
   };
+  
 
   // Update the layer's state or handle other changes (drag, resize, etc.)
   useEffect(() => {
