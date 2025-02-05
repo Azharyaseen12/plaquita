@@ -445,3 +445,93 @@ h1 {
   .text-area {
     transition: transform 0.1s ease; /* Smooth transition for rotation */
   }
+
+
+/* Styles for the Layers section */
+.layers-container {
+  padding: 10px;
+}
+
+.layers-title {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.layers-list {
+  list-style: none;
+  padding: 0;
+}
+
+.layer-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  cursor: pointer; /* Make it clickable */
+  transition: background-color 0.3s ease;
+}
+
+.layer-item:hover {
+  background-color: #f5f5f5; /* Highlight the layer item on hover */
+}
+
+.layer-item.selected {
+  background-color: #e0f7fa; /* Light blue background for the selected layer */
+}
+
+.layer-icon {
+  display: flex;
+  align-items: center;
+}
+
+.layer-icon img {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  border-radius: 3px;
+}
+
+.layer-icon span {
+  font-size: 16px;
+  color: #333;
+}
+
+.layer-actions {
+  display: flex;
+  align-items: center;
+}
+
+.layer-delete-btn {
+  background: #ff4d4d;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.layer-delete-btn i {
+  margin-right: 5px;
+}
+
+.layer-select-btn {
+  background: #007bff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.layer-select-btn i {
+  margin-right: 5px;
+}

@@ -9,6 +9,9 @@ import UploadSection from "./UploadSection";
 import ClipartSection from "./ClipartSection";
 import AddTextOptions from "./AddTextOptions";
 import ProductOptions from "./ProductOptions";
+import LayersOptions from "./LayersOptions";
+import { v4 as uuidv4 } from "uuid"; // For generating unique IDs for layers
+
 const TShirtCustomizer = () => {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -19,13 +22,53 @@ const TShirtCustomizer = () => {
   const [redoStack, setRedoStack] = useState([]);
   const [currentTextBox, setCurrentTextBox] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
+  const [layers, setLayers] = useState([]);
+  const [selectedLayerId, setSelectedLayerId] = useState(null);
+
+  const selectLayer = (layerId) => {
+    setSelectedLayerId(layerId); // Update the selected layer ID
+  };
+
+  // Function to highlight the selected layer
+  const highlightSelectedLayer = (layerId) => {
+    const layers = dragRegionRef.current.querySelectorAll(".text-area");
+    layers.forEach((layer) => {
+      const closeButton = layer.querySelector(".handle.close");
+      const rotateButton = layer.querySelector(".handle.rotate");
+      const copyButton = layer.querySelector(".handle.copy");
+      const resizeButton = layer.querySelector(".handle.resize");
+  
+      // If this layer is selected, display buttons, otherwise hide them
+      if (layer.id === layerId) {
+        layer.style.border = "2px solid blue"; // Add a blue border to the selected layer
+        closeButton.style.display = "block";  // Show the close button
+        rotateButton.style.display = "block"; // Show the rotate button
+        copyButton.style.display = "block";   // Show the copy button
+        resizeButton.style.display = "block"; // Show the resize button
+      } else {
+        layer.style.border = "none"; // Remove the border from other layers
+        closeButton.style.display = "none"; // Hide the close button
+        rotateButton.style.display = "none"; // Hide the rotate button
+        copyButton.style.display = "none";   // Hide the copy button
+        resizeButton.style.display = "none"; // Hide the resize button
+      }
+    });
+  };
+
+  // Update the layer's state or handle other changes (drag, resize, etc.)
+  useEffect(() => {
+    if (selectedLayerId) {
+      highlightSelectedLayer(selectedLayerId); // Highlight the selected layer
+    }
+  }, [selectedLayerId]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const image = new Image();
     image.src = Tshirtimg;
     imgRef.current = image;
-  
+
     const checkDragRegionContent = () => {
       const dragRegion = dragRegionRef.current;
       if (dragRegion.querySelector(".selected")) {
@@ -34,11 +77,11 @@ const TShirtCustomizer = () => {
         dragRegion.style.border = "none"; // Hide border if no selection
       }
     };
-  
+
     const handleSelection = (e) => {
       const dragRegion = dragRegionRef.current;
       const target = e.target;
-  
+
       if (dragRegion.contains(target)) {
         // Ensure the target is inside the drag region
         if (
@@ -55,37 +98,37 @@ const TShirtCustomizer = () => {
         // checkDragRegionContent(); // Update the border
       }
     };
-  
+
     const clearSelections = () => {
       const dragRegion = dragRegionRef.current;
       const selectedElements = dragRegion.querySelectorAll(".selected");
       selectedElements.forEach((el) => el.classList.remove("selected"));
     };
-  
+
     image.onload = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       centerDragRegion();
       // checkDragRegionContent(); // Initial check for drag region content
     };
-  
+
     window.addEventListener("resize", centerDragRegion);
     document.addEventListener("click", handleSelection);
-  
+
     // Observe mutations to dynamically check content in dragRegion
     const observer = new MutationObserver(() => {
       // checkDragRegionContent();
     });
-  
+
     observer.observe(dragRegionRef.current, { childList: true });
-  
+
     return () => {
       window.removeEventListener("resize", centerDragRegion);
       document.removeEventListener("click", handleSelection);
       observer.disconnect();
     };
   }, []);
-  
+
   const centerDragRegion = () => {
     const canvas = canvasRef.current;
     const canvasRect = canvas.getBoundingClientRect();
@@ -96,10 +139,12 @@ const TShirtCustomizer = () => {
       top: `${(canvasRect.height - canvasRect.height * 0.5) / 2}px`,
     });
   };
+  
   const saveState = () => {
     setUndoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
     setRedoStack([]);
   };
+
   const initializeEventListeners = () => {
     const dragRegion = dragRegionRef.current;
     const textBoxes = dragRegion.querySelectorAll(".text-area");
@@ -137,33 +182,9 @@ const TShirtCustomizer = () => {
         .addEventListener("mousedown", (e) => handleResizeStart(e, textBox));
     });
   };
-  const undo = () => {
-    if (undoStack.length > 0) {
-      const lastState = undoStack.pop();
-      setRedoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
-      dragRegionRef.current.innerHTML = lastState;
-      setUndoStack([...undoStack]);
 
-      // Reinitialize event listeners after restoring state
-      initializeEventListeners();
-    } else {
-      alert("Nothing to undo!");
-    }
-  };
-  const redo = () => {
-    if (redoStack.length > 0) {
-      const nextState = redoStack.pop();
-      setUndoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
-      dragRegionRef.current.innerHTML = nextState;
-      setRedoStack([...redoStack]);
-
-      // Reinitialize event listeners after restoring state
-      initializeEventListeners();
-    } else {
-      alert("Nothing to redo!");
-    }
-  };
-  const handleDragStart = (e, textBox) => {
+  
+  const handleDragStart = (e, textBox, layerId) => {
     setCurrentTextBox(textBox);
 
     const dragRegion = dragRegionRef.current;
@@ -183,8 +204,16 @@ const TShirtCustomizer = () => {
       textBox.style.left = `${newLeft}px`;
       textBox.style.top = `${newTop}px`;
 
-      const input = textBox.querySelector("input, img"); // Support both input and img
+      // Update the position in the layers state
+      setLayers((prevLayers) =>
+        prevLayers.map((layer) =>
+          layer.id === layerId
+            ? { ...layer, position: { top: newTop, left: newLeft } }
+            : layer
+        )
+      );
 
+      const input = textBox.querySelector("input, img"); // Support both input and img
       if (input) {
         // Ensure `input` exists before accessing its style
         const textBoxRect = textBox.getBoundingClientRect();
@@ -219,7 +248,8 @@ const TShirtCustomizer = () => {
     document.addEventListener("mousemove", handleDragging);
     document.addEventListener("mouseup", handleDragEnd);
   };
-  const handleResizeStart = (e, textBox) => {
+
+  const handleResizeStart = (e, textBox, layerId) => {
     const startX = e.clientX;
     const startY = e.clientY;
     const startWidth = textBox.offsetWidth;
@@ -228,76 +258,31 @@ const TShirtCustomizer = () => {
     const handleResizing = (e) => {
       const newWidth = Math.max(startWidth + (e.clientX - startX), 50);
       const newHeight = Math.max(startHeight + (e.clientY - startY), 30);
+
+      // Apply new width and height to the text box
       textBox.style.width = `${newWidth}px`;
       textBox.style.height = `${newHeight}px`;
+
+      // Update the size in the layers state
+      setLayers((prevLayers) =>
+        prevLayers.map((layer) =>
+          layer.id === layerId
+            ? { ...layer, size: { width: newWidth, height: newHeight } }
+            : layer
+        )
+      );
     };
 
     const handleResizeEnd = () => {
       document.removeEventListener("mousemove", handleResizing);
       document.removeEventListener("mouseup", handleResizeEnd);
-      saveState();
+      saveState(); // Save the current state after resizing
     };
 
     document.addEventListener("mousemove", handleResizing);
     document.addEventListener("mouseup", handleResizeEnd);
   };
-  const addText = (copyData = null) => {
-    const dragRegion = dragRegionRef.current;
-    const textBox = document.createElement("div");
-    textBox.classList.add("text-area");
 
-    // If copyData is provided, use its values; otherwise, set defaults
-    const textValue = copyData?.value || "Your Text";
-    const textTop = copyData?.top || "50px";
-    const textLeft = copyData?.left || "50px";
-    const textStyle =
-      copyData?.style || "font-family: Arial; font-size: 16px; color: black;";
-
-    textBox.innerHTML = `
-      <input type="text" value="${textValue}" style="${textStyle}" />
-      <div class="handle close">X</div>
-      <div class="handle resize"><i class="fas fa-expand-arrows-alt"></i></div>
-      <div class="handle rotate">↻</div>
-      <div class="handle copy">⧉</div>
-    `;
-
-    // Position the text box
-    textBox.style.position = "absolute";
-    textBox.style.top = textTop;
-    textBox.style.left = textLeft;
-
-    dragRegion.appendChild(textBox);
-    saveState();
-
-    // Add event listeners for functionality
-    textBox.querySelector(".handle.close").addEventListener("click", () => {
-      dragRegion.removeChild(textBox);
-      saveState();
-    });
-
-    textBox.querySelector(".handle.rotate").addEventListener("click", () => {
-      const currentRotation =
-        textBox.style.transform.replace(/[^0-9]/g, "") || 0;
-      textBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
-      saveState();
-    });
-
-    textBox.querySelector(".handle.copy").addEventListener("click", () => {
-      const input = textBox.querySelector("input");
-      const inputStyle = input.getAttribute("style");
-      addText({
-        value: input.value,
-        top: `${parseInt(textBox.style.top) + 20}px`,
-        left: `${parseInt(textBox.style.left) + 20}px`,
-        style: inputStyle, // Pass the style attribute of the input
-      });
-    });
-
-    textBox.addEventListener("mousedown", (e) => handleDragStart(e, textBox));
-    textBox
-      .querySelector(".handle.resize")
-      .addEventListener("mousedown", (e) => handleResizeStart(e, textBox));
-  };
   const changeColor = (color) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -324,99 +309,7 @@ const TShirtCustomizer = () => {
 
     ctx.putImageData(imageData, 0, 0);
   };
-  const saveCanvasWithOverlays = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const image = imgRef.current;
-  
-    // Clear the canvas and draw the T-shirt base image
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-  
-    // Reapply the selected color
-    if (selectedColor) {
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-  
-      const [red, green, blue] = selectedColor.match(/\d+/g).map(Number);
-  
-      for (let i = 0; i < data.length; i += 4) {
-        const lightness = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
-        if (lightness > 0.2 && data[i + 3] > 0) {
-          data[i] = red * lightness;
-          data[i + 1] = green * lightness;
-          data[i + 2] = blue * lightness;
-        }
-      }
-  
-      ctx.putImageData(imageData, 0, 0);
-    }
-  
-    const dragRegion = dragRegionRef.current;
-    const dragRegionRect = dragRegion.getBoundingClientRect();
-    const canvasRect = canvas.getBoundingClientRect();
-  
-    // Calculate the clipping region relative to the canvas
-    const clipX = dragRegionRect.left - canvasRect.left;
-    const clipY = dragRegionRect.top - canvasRect.top;
-    const clipWidth = dragRegionRect.width;
-    const clipHeight = dragRegionRect.height;
-  
-    // Clip to the dragRegion area
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(clipX, clipY, clipWidth, clipHeight);
-    ctx.clip();
-  
-    const elements = dragRegion.children;
-  
-    Array.from(elements).forEach((element) => {
-      const rect = element.getBoundingClientRect();
-      let elementLeft = rect.left - canvasRect.left;
-      let elementTop = rect.top - canvasRect.top;
-  
-      if (element.querySelector("input")) {
-        elementLeft += 27; // Add 2px for text
-        elementTop += 20; // Add 20px for text
-      } else if (element.querySelector("img")) {
-        elementLeft += 2.5; // Add 2px for text
-        elementTop += 2; // Add 2px for images
-      }
-      
-      // Render text overlays
-      if (element.querySelector("input")) {
-        const input = element.querySelector("input");
-        const font = window.getComputedStyle(input).font;
-        const color = window.getComputedStyle(input).color;
-  
-        ctx.font = font;
-        ctx.fillStyle = color;
-        ctx.fillText(
-          input.value,
-          elementLeft,
-          elementTop + parseInt(window.getComputedStyle(input).fontSize)
-        );
-      }
-  
-      // Render image overlays
-      if (element.querySelector("img")) {
-        const img = element.querySelector("img");
-        const width = parseInt(window.getComputedStyle(img).width);
-        const height = parseInt(window.getComputedStyle(img).height);
-  
-        ctx.drawImage(img, elementLeft, elementTop, width, height);
-      }
-    });
-  
-    ctx.restore(); // Restore the canvas state after clipping
-  
-    // Save the canvas as an image
-    const link = document.createElement("a");
-    link.download = "tshirt_design.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
-  
+
 
   const updateTextStyle = (styleProp, value) => {
     if (currentTextBox) {
@@ -425,139 +318,48 @@ const TShirtCustomizer = () => {
       saveState(); // Save the updated state for undo/redo functionality
     }
   };
-  const printCanvas = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const image = imgRef.current;
-  
-    // Clear the canvas and draw the T-shirt base image
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-  
-    // Reapply the selected color
-    if (selectedColor) {
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-  
-      const [red, green, blue] = selectedColor.match(/\d+/g).map(Number);
-  
-      for (let i = 0; i < data.length; i += 4) {
-        const lightness = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
-        if (lightness > 0.2 && data[i + 3] > 0) {
-          data[i] = red * lightness;
-          data[i + 1] = green * lightness;
-          data[i + 2] = blue * lightness;
-        }
-      }
-  
-      ctx.putImageData(imageData, 0, 0);
-    }
-  
-    const dragRegion = dragRegionRef.current;
-    const dragRegionRect = dragRegion.getBoundingClientRect();
-    const canvasRect = canvas.getBoundingClientRect();
-  
-    // Calculate the clipping region relative to the canvas
-    const clipX = dragRegionRect.left - canvasRect.left;
-    const clipY = dragRegionRect.top - canvasRect.top;
-    const clipWidth = dragRegionRect.width;
-    const clipHeight = dragRegionRect.height;
-  
-    // Clip to the dragRegion area
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(clipX, clipY, clipWidth, clipHeight);
-    ctx.clip();
-  
-    const elements = dragRegion.children;
-  
-    Array.from(elements).forEach((element) => {
-      const rect = element.getBoundingClientRect();
-      let elementLeft = rect.left - canvasRect.left;
-      let elementTop = rect.top - canvasRect.top;
-  
-      if (element.querySelector("input")) {
-        elementLeft += 27; // Add 27px for text
-        elementTop += 20; // Add 20px for text
-      } else if (element.querySelector("img")) {
-        elementLeft += 2.5; // Add 2.5px for images
-        elementTop += 2; // Add 2px for images
-      }
-  
-      // Render text overlays
-      if (element.querySelector("input")) {
-        const input = element.querySelector("input");
-        const font = window.getComputedStyle(input).font;
-        const color = window.getComputedStyle(input).color;
-  
-        ctx.font = font;
-        ctx.fillStyle = color;
-        ctx.fillText(
-          input.value,
-          elementLeft,
-          elementTop + parseInt(window.getComputedStyle(input).fontSize)
-        );
-      }
-  
-      // Render image overlays
-      if (element.querySelector("img")) {
-        const img = element.querySelector("img");
-        const width = parseInt(window.getComputedStyle(img).width);
-        const height = parseInt(window.getComputedStyle(img).height);
-  
-        ctx.drawImage(img, elementLeft, elementTop, width, height);
-      }
-    });
-  
-    ctx.restore(); // Restore the canvas state after clipping
-  
-    // Convert the clipped canvas to an image and open it in a new window for printing
-    const dataUrl = canvas.toDataURL("image/png");
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      `<html><head><title>Print T-Shirt Design</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background-color:white;"><img src="${dataUrl}" style="max-width:100%;height:auto;"></body></html>`
-    );
-    printWindow.document.close();
-    printWindow.print();
-  };
-  
-  const addTemplate = (
-    text,
-    fontFamily,
-    fontSize,
-    fontStyle,
-    fontWeight,
-    color,
-    positionTop = "50px",
-    positionLeft = "50px"
-  ) => {
-    const dragRegion = dragRegionRef.current;
+
+  // Function to add a new text layer
+  const addText = (copyData = null) => {
     const textBox = document.createElement("div");
     textBox.classList.add("text-area");
+    const layerId = uuidv4(); // Generate a unique ID for the layer
+    textBox.id = layerId; // Assign the ID to the DOM element
 
-    // Construct the text style
-    const textStyle = `font-family: ${fontFamily}; font-size: ${fontSize}; font-style: ${fontStyle}; font-weight: ${fontWeight}; color: ${color};`;
+    const textValue = copyData?.value || "Your Text";
+    const textTop = copyData?.top || "50px";
+    const textLeft = copyData?.left || "50px";
+    const textStyle =
+      copyData?.style || "font-family: Arial; font-size: 16px; color: black;";
 
-    // Set the HTML for the text box
     textBox.innerHTML = `
-      <input type="text" value="${text}" style="${textStyle}" />
+      <input type="text" value="${textValue}" style="${textStyle}" />
       <div class="handle close">X</div>
       <div class="handle resize"><i class="fas fa-expand-arrows-alt"></i></div>
       <div class="handle rotate">↻</div>
       <div class="handle copy">⧉</div>
     `;
-
-    // Position the text box
     textBox.style.position = "absolute";
-    textBox.style.top = positionTop;
-    textBox.style.left = positionLeft;
+    textBox.style.top = textTop;
+    textBox.style.left = textLeft;
 
-    dragRegion.appendChild(textBox);
-    saveState();
+    // Add the new layer to the list of layers
+    setLayers((prevLayers) => [
+      ...prevLayers,
+      {
+        id: layerId,
+        type: "text",
+        content: textValue,
+        position: { top: textTop, left: textLeft },
+      },
+    ]);
+
+    // Add the text box to the drag region
+    dragRegionRef.current.appendChild(textBox);
 
     // Add event listeners for functionality
     textBox.querySelector(".handle.close").addEventListener("click", () => {
-      dragRegion.removeChild(textBox);
+      deleteLayer(layerId); // Call deleteLayer when closing
       saveState();
     });
 
@@ -575,15 +377,129 @@ const TShirtCustomizer = () => {
         value: input.value,
         top: `${parseInt(textBox.style.top) + 20}px`,
         left: `${parseInt(textBox.style.left) + 20}px`,
-        style: inputStyle,
+        style: inputStyle, // Pass the style attribute of the input
       });
     });
 
-    textBox.addEventListener("mousedown", (e) => handleDragStart(e, textBox));
+    // Update the text content in state when the user types in the input field
+    const inputField = textBox.querySelector("input");
+    inputField.addEventListener("input", (e) => {
+      const updatedText = e.target.value;
+
+      // Update the state with the new text content
+      setLayers((prevLayers) =>
+        prevLayers.map((layer) =>
+          layer.id === layerId
+            ? { ...layer, content: updatedText } // Update the content of the layer
+            : layer
+        )
+      );
+    });
+
+    textBox.addEventListener("mousedown", (e) =>
+      handleDragStart(e, textBox, layerId)
+    );
     textBox
       .querySelector(".handle.resize")
-      .addEventListener("mousedown", (e) => handleResizeStart(e, textBox));
+      .addEventListener("mousedown", (e) =>
+        handleResizeStart(e, textBox, layerId)
+      );
   };
+
+  const addTemplate = (
+    text,
+    fontFamily,
+    fontSize,
+    fontStyle,
+    fontWeight,
+    color,
+    positionTop = "50px",
+    positionLeft = "50px"
+  ) => {
+    const dragRegion = dragRegionRef.current;
+    const textBox = document.createElement("div");
+    textBox.classList.add("text-area");
+    const layerId = uuidv4(); // Generate a unique ID for the layer
+    textBox.id = layerId; // Assign the ID to the DOM element
+  
+    // Construct the text style
+    const textStyle = `font-family: ${fontFamily}; font-size: ${fontSize}; font-style: ${fontStyle}; font-weight: ${fontWeight}; color: ${color};`;
+  
+    // Set the HTML for the text box
+    textBox.innerHTML = `
+      <input type="text" value="${text}" style="${textStyle}" />
+      <div class="handle close">X</div>
+      <div class="handle resize"><i class="fas fa-expand-arrows-alt"></i></div>
+      <div class="handle rotate">↻</div>
+      <div class="handle copy">⧉</div>
+    `;
+  
+    // Position the text box
+    textBox.style.position = "absolute";
+    textBox.style.top = positionTop;
+    textBox.style.left = positionLeft;
+  
+    dragRegion.appendChild(textBox);
+    saveState();
+  
+    // Add the layer to the layers state
+    setLayers((prevLayers) => [
+      ...prevLayers,
+      {
+        id: layerId,
+        type: "text",
+        content: text,
+        position: { top: positionTop, left: positionLeft },
+        style: textStyle,
+      },
+    ]);
+  
+    // Add event listeners for functionality
+    textBox.querySelector(".handle.close").addEventListener("click", () => {
+      dragRegion.removeChild(textBox); // Remove the text box from the canvas
+      setLayers((prevLayers) =>
+        prevLayers.filter((layer) => layer.id !== layerId)
+      ); // Remove the layer from state
+      saveState();
+    });
+  
+    textBox.querySelector(".handle.rotate").addEventListener("click", () => {
+      const currentRotation =
+        textBox.style.transform.replace(/[^0-9]/g, "") || 0;
+      textBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
+      saveState();
+    });
+  
+    textBox.querySelector(".handle.copy").addEventListener("click", () => {
+      const input = textBox.querySelector("input");
+      const inputStyle = input.getAttribute("style");
+      addText({
+        value: input.value,
+        top: `${parseInt(textBox.style.top) + 20}px`,
+        left: `${parseInt(textBox.style.left) + 20}px`,
+        style: inputStyle,
+      });
+    });
+  
+    // Update the text content in state when the user types in the input field
+    const inputField = textBox.querySelector("input");
+    inputField.addEventListener("input", (e) => {
+      const updatedText = e.target.value;
+  
+      // Update the state with the new text content
+      setLayers((prevLayers) =>
+        prevLayers.map((layer) =>
+          layer.id === layerId
+            ? { ...layer, content: updatedText } // Update the content of the layer
+            : layer
+        )
+      );
+    });
+  
+    textBox.addEventListener("mousedown", (e) => handleDragStart(e, textBox, layerId));
+    textBox.querySelector(".handle.resize").addEventListener("mousedown", (e) => handleResizeStart(e, textBox, layerId));
+  };
+  
   const addClipartToCanvas = (
     clipartSrc,
     positionTop = "50px",
@@ -594,8 +510,9 @@ const TShirtCustomizer = () => {
     const dragRegion = dragRegionRef.current;
     const clipartBox = document.createElement("div");
     clipartBox.classList.add("text-area");
+    const layerId = uuidv4(); // Generate a unique ID for the layer
+    clipartBox.id = layerId; // Assign the ID to the DOM element
 
-    // Set the HTML for the clipart box
     clipartBox.innerHTML = `
       <img src="${clipartSrc}" style="width: ${width}; height: ${height};" />
       <div class="handle close">X</div>
@@ -604,7 +521,6 @@ const TShirtCustomizer = () => {
       <div class="handle copy">⧉</div>
     `;
 
-    // Position the clipart box
     clipartBox.style.position = "absolute";
     clipartBox.style.top = positionTop;
     clipartBox.style.left = positionLeft;
@@ -612,18 +528,31 @@ const TShirtCustomizer = () => {
     dragRegion.appendChild(clipartBox);
     saveState();
 
+    // Add the layer to the layers state
+    setLayers((prevLayers) => [
+      ...prevLayers,
+      {
+        id: layerId,
+        type: "clipart",
+        src: clipartSrc, // Save the image source URL here
+        position: { top: positionTop, left: positionLeft },
+        size: { width, height },
+      },
+    ]);
+
     // Add event listeners for functionality
     clipartBox.querySelector(".handle.close").addEventListener("click", () => {
       dragRegion.removeChild(clipartBox);
+      setLayers((prevLayers) =>
+        prevLayers.filter((layer) => layer.id !== layerId)
+      ); // Remove layer from state
       saveState();
     });
 
     clipartBox.querySelector(".handle.rotate").addEventListener("click", () => {
       const currentRotation =
         clipartBox.style.transform.replace(/[^0-9]/g, "") || 0;
-      clipartBox.style.transform = `rotate(${
-        parseInt(currentRotation) + 15
-      }deg)`;
+      clipartBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
       saveState();
     });
 
@@ -638,12 +567,241 @@ const TShirtCustomizer = () => {
     });
 
     clipartBox.addEventListener("mousedown", (e) =>
-      handleDragStart(e, clipartBox)
+      handleDragStart(e, clipartBox, layerId)
     );
-    clipartBox
-      .querySelector(".handle.resize")
-      .addEventListener("mousedown", (e) => handleResizeStart(e, clipartBox));
+    clipartBox.querySelector(".handle.resize").addEventListener("mousedown", (e) => handleResizeStart(e, clipartBox, layerId));
   };
+
+  const undo = () => {
+    if (undoStack.length > 0) {
+      const lastState = undoStack.pop();
+      setRedoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
+      dragRegionRef.current.innerHTML = lastState;
+      setUndoStack([...undoStack]);
+
+      // Reinitialize event listeners after restoring state
+      initializeEventListeners();
+    } else {
+      alert("Nothing to undo!");
+    }
+  };
+
+  const redo = () => {
+    if (redoStack.length > 0) {
+      const nextState = redoStack.pop();
+      setUndoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
+      dragRegionRef.current.innerHTML = nextState;
+      setRedoStack([...redoStack]);
+
+      // Reinitialize event listeners after restoring state
+      initializeEventListeners();
+    } else {
+      alert("Nothing to redo!");
+    }
+  };
+
+  const deleteLayer = (layerId) => {
+    // Find the layer element in the DOM
+    const layerElement = document.getElementById(layerId); // Assuming each layer has a unique ID
+  
+    // Remove the layer from the DOM (canvas)
+    if (layerElement) {
+      layerElement.remove();
+    }
+  
+    // Remove the layer from the state
+    setLayers((prevLayers) => prevLayers.filter((layer) => layer.id !== layerId));
+  };
+
+  const saveCanvasWithOverlays = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    const image = imgRef.current;
+
+    // Clear the canvas and draw the T-shirt base image
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    // Reapply the selected color
+    if (selectedColor) {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      const [red, green, blue] = selectedColor.match(/\d+/g).map(Number);
+
+      for (let i = 0; i < data.length; i += 4) {
+        const lightness = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
+        if (lightness > 0.2 && data[i + 3] > 0) {
+          data[i] = red * lightness;
+          data[i + 1] = green * lightness;
+          data[i + 2] = blue * lightness;
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    const dragRegion = dragRegionRef.current;
+    const dragRegionRect = dragRegion.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Calculate the clipping region relative to the canvas
+    const clipX = dragRegionRect.left - canvasRect.left;
+    const clipY = dragRegionRect.top - canvasRect.top;
+    const clipWidth = dragRegionRect.width;
+    const clipHeight = dragRegionRect.height;
+
+    // Clip to the dragRegion area
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(clipX, clipY, clipWidth, clipHeight);
+    ctx.clip();
+
+    const elements = dragRegion.children;
+
+    Array.from(elements).forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      let elementLeft = rect.left - canvasRect.left;
+      let elementTop = rect.top - canvasRect.top;
+
+      if (element.querySelector("input")) {
+        elementLeft += 27; // Add 2px for text
+        elementTop += 20; // Add 20px for text
+      } else if (element.querySelector("img")) {
+        elementLeft += 2.5; // Add 2px for text
+        elementTop += 2; // Add 2px for images
+      }
+
+      // Render text overlays
+      if (element.querySelector("input")) {
+        const input = element.querySelector("input");
+        const font = window.getComputedStyle(input).font;
+        const color = window.getComputedStyle(input).color;
+
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.fillText(
+          input.value,
+          elementLeft,
+          elementTop + parseInt(window.getComputedStyle(input).fontSize)
+        );
+      }
+
+      // Render image overlays
+      if (element.querySelector("img")) {
+        const img = element.querySelector("img");
+        const width = parseInt(window.getComputedStyle(img).width);
+        const height = parseInt(window.getComputedStyle(img).height);
+
+        ctx.drawImage(img, elementLeft, elementTop, width, height);
+      }
+    });
+
+    ctx.restore(); // Restore the canvas state after clipping
+
+    // Save the canvas as an image
+    const link = document.createElement("a");
+    link.download = "tshirt_design.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
+
+  const printCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    const image = imgRef.current;
+
+    // Clear the canvas and draw the T-shirt base image
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    // Reapply the selected color
+    if (selectedColor) {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      const [red, green, blue] = selectedColor.match(/\d+/g).map(Number);
+
+      for (let i = 0; i < data.length; i += 4) {
+        const lightness = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
+        if (lightness > 0.2 && data[i + 3] > 0) {
+          data[i] = red * lightness;
+          data[i + 1] = green * lightness;
+          data[i + 2] = blue * lightness;
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    const dragRegion = dragRegionRef.current;
+    const dragRegionRect = dragRegion.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Calculate the clipping region relative to the canvas
+    const clipX = dragRegionRect.left - canvasRect.left;
+    const clipY = dragRegionRect.top - canvasRect.top;
+    const clipWidth = dragRegionRect.width;
+    const clipHeight = dragRegionRect.height;
+
+    // Clip to the dragRegion area
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(clipX, clipY, clipWidth, clipHeight);
+    ctx.clip();
+
+    const elements = dragRegion.children;
+
+    Array.from(elements).forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      let elementLeft = rect.left - canvasRect.left;
+      let elementTop = rect.top - canvasRect.top;
+
+      if (element.querySelector("input")) {
+        elementLeft += 27; // Add 27px for text
+        elementTop += 20; // Add 20px for text
+      } else if (element.querySelector("img")) {
+        elementLeft += 2.5; // Add 2.5px for images
+        elementTop += 2; // Add 2px for images
+      }
+
+      // Render text overlays
+      if (element.querySelector("input")) {
+        const input = element.querySelector("input");
+        const font = window.getComputedStyle(input).font;
+        const color = window.getComputedStyle(input).color;
+
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.fillText(
+          input.value,
+          elementLeft,
+          elementTop + parseInt(window.getComputedStyle(input).fontSize)
+        );
+      }
+
+      // Render image overlays
+      if (element.querySelector("img")) {
+        const img = element.querySelector("img");
+        const width = parseInt(window.getComputedStyle(img).width);
+        const height = parseInt(window.getComputedStyle(img).height);
+
+        ctx.drawImage(img, elementLeft, elementTop, width, height);
+      }
+    });
+
+    ctx.restore(); // Restore the canvas state after clipping
+
+    // Convert the clipped canvas to an image and open it in a new window for printing
+    const dataUrl = canvas.toDataURL("image/png");
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(
+      `<html><head><title>Print T-Shirt Design</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background-color:white;"><img src="${dataUrl}" style="max-width:100%;height:auto;"></body></html>`
+    );
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
     <div>
       <nav className="navbar navbar-light bg-white px-4 py-2 border-bottom">
@@ -741,6 +899,9 @@ const TShirtCustomizer = () => {
                   <UploadSection addClipartToCanvas={addClipartToCanvas} />
                 ) : activeSidebar === "shapes" ? (
                   <Shapes addClipartToCanvas={addClipartToCanvas} />
+                ) : activeSidebar === "layer" ? (
+                  <LayersOptions layers={layers} deleteLayer={deleteLayer} selectLayer={selectLayer}/>
+
                 ) : null}
               </div>
 
