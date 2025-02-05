@@ -48,11 +48,11 @@ const TShirtCustomizer = () => {
           // Toggle selection only on click
           clearSelections();
           target.classList.add("selected");
-          checkDragRegionContent(); // Update the border
+          // checkDragRegionContent(); // Update the border
         }
       } else {
         clearSelections(); // Clear selections when clicked outside
-        checkDragRegionContent(); // Update the border
+        // checkDragRegionContent(); // Update the border
       }
     };
   
@@ -66,7 +66,7 @@ const TShirtCustomizer = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       centerDragRegion();
-      checkDragRegionContent(); // Initial check for drag region content
+      // checkDragRegionContent(); // Initial check for drag region content
     };
   
     window.addEventListener("resize", centerDragRegion);
@@ -74,7 +74,7 @@ const TShirtCustomizer = () => {
   
     // Observe mutations to dynamically check content in dragRegion
     const observer = new MutationObserver(() => {
-      checkDragRegionContent();
+      // checkDragRegionContent();
     });
   
     observer.observe(dragRegionRef.current, { childList: true });
