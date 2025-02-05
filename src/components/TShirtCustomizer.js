@@ -139,7 +139,7 @@ const TShirtCustomizer = () => {
       top: `${(canvasRect.height - canvasRect.height * 0.5) / 2}px`,
     });
   };
-  
+
   const saveState = () => {
     setUndoStack((prev) => [...prev, dragRegionRef.current.innerHTML]);
     setRedoStack([]);
@@ -406,6 +406,7 @@ const TShirtCustomizer = () => {
       );
   };
 
+
   const addTemplate = (
     text,
     fontFamily,
@@ -421,10 +422,10 @@ const TShirtCustomizer = () => {
     textBox.classList.add("text-area");
     const layerId = uuidv4(); // Generate a unique ID for the layer
     textBox.id = layerId; // Assign the ID to the DOM element
-  
+
     // Construct the text style
     const textStyle = `font-family: ${fontFamily}; font-size: ${fontSize}; font-style: ${fontStyle}; font-weight: ${fontWeight}; color: ${color};`;
-  
+
     // Set the HTML for the text box
     textBox.innerHTML = `
       <input type="text" value="${text}" style="${textStyle}" />
@@ -433,15 +434,15 @@ const TShirtCustomizer = () => {
       <div class="handle rotate">↻</div>
       <div class="handle copy">⧉</div>
     `;
-  
+
     // Position the text box
     textBox.style.position = "absolute";
     textBox.style.top = positionTop;
     textBox.style.left = positionLeft;
-  
+
     dragRegion.appendChild(textBox);
     saveState();
-  
+
     // Add the layer to the layers state
     setLayers((prevLayers) => [
       ...prevLayers,
@@ -453,7 +454,7 @@ const TShirtCustomizer = () => {
         style: textStyle,
       },
     ]);
-  
+
     // Add event listeners for functionality
     textBox.querySelector(".handle.close").addEventListener("click", () => {
       dragRegion.removeChild(textBox); // Remove the text box from the canvas
@@ -462,14 +463,14 @@ const TShirtCustomizer = () => {
       ); // Remove the layer from state
       saveState();
     });
-  
+
     textBox.querySelector(".handle.rotate").addEventListener("click", () => {
       const currentRotation =
         textBox.style.transform.replace(/[^0-9]/g, "") || 0;
       textBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
       saveState();
     });
-  
+
     textBox.querySelector(".handle.copy").addEventListener("click", () => {
       const input = textBox.querySelector("input");
       const inputStyle = input.getAttribute("style");
@@ -480,12 +481,12 @@ const TShirtCustomizer = () => {
         style: inputStyle,
       });
     });
-  
+
     // Update the text content in state when the user types in the input field
     const inputField = textBox.querySelector("input");
     inputField.addEventListener("input", (e) => {
       const updatedText = e.target.value;
-  
+
       // Update the state with the new text content
       setLayers((prevLayers) =>
         prevLayers.map((layer) =>
@@ -495,10 +496,11 @@ const TShirtCustomizer = () => {
         )
       );
     });
-  
+
     textBox.addEventListener("mousedown", (e) => handleDragStart(e, textBox, layerId));
     textBox.querySelector(".handle.resize").addEventListener("mousedown", (e) => handleResizeStart(e, textBox, layerId));
   };
+
   
   const addClipartToCanvas = (
     clipartSrc,
@@ -512,7 +514,7 @@ const TShirtCustomizer = () => {
     clipartBox.classList.add("text-area");
     const layerId = uuidv4(); // Generate a unique ID for the layer
     clipartBox.id = layerId; // Assign the ID to the DOM element
-
+  
     clipartBox.innerHTML = `
       <img src="${clipartSrc}" style="width: ${width}; height: ${height};" />
       <div class="handle close">X</div>
@@ -520,14 +522,14 @@ const TShirtCustomizer = () => {
       <div class="handle rotate">↻</div>
       <div class="handle copy">⧉</div>
     `;
-
+  
     clipartBox.style.position = "absolute";
     clipartBox.style.top = positionTop;
     clipartBox.style.left = positionLeft;
-
+  
     dragRegion.appendChild(clipartBox);
     saveState();
-
+  
     // Add the layer to the layers state
     setLayers((prevLayers) => [
       ...prevLayers,
@@ -539,7 +541,7 @@ const TShirtCustomizer = () => {
         size: { width, height },
       },
     ]);
-
+  
     // Add event listeners for functionality
     clipartBox.querySelector(".handle.close").addEventListener("click", () => {
       dragRegion.removeChild(clipartBox);
@@ -548,14 +550,14 @@ const TShirtCustomizer = () => {
       ); // Remove layer from state
       saveState();
     });
-
+  
     clipartBox.querySelector(".handle.rotate").addEventListener("click", () => {
       const currentRotation =
         clipartBox.style.transform.replace(/[^0-9]/g, "") || 0;
       clipartBox.style.transform = `rotate(${parseInt(currentRotation) + 15}deg)`;
       saveState();
     });
-
+  
     clipartBox.querySelector(".handle.copy").addEventListener("click", () => {
       addClipartToCanvas(
         clipartSrc,
@@ -565,13 +567,13 @@ const TShirtCustomizer = () => {
         height
       );
     });
-
+  
     clipartBox.addEventListener("mousedown", (e) =>
       handleDragStart(e, clipartBox, layerId)
     );
     clipartBox.querySelector(".handle.resize").addEventListener("mousedown", (e) => handleResizeStart(e, clipartBox, layerId));
   };
-
+  
   const undo = () => {
     if (undoStack.length > 0) {
       const lastState = undoStack.pop();
