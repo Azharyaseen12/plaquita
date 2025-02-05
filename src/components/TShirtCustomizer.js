@@ -282,28 +282,36 @@ const TShirtCustomizer = () => {
     const startWidth = textBox.offsetWidth;
     const startHeight = textBox.offsetHeight;
 
+    const input = textBox.querySelector("input"); // Get the text input element
+    const computedStyle = window.getComputedStyle(input);
+    const startFontSize = parseFloat(computedStyle.fontSize); // Get the initial font size
+
     const handleResizing = (e) => {
-      const newWidth = Math.max(startWidth + (e.clientX - startX), 50);
-      const newHeight = Math.max(startHeight + (e.clientY - startY), 30);
+        const newWidth = Math.max(startWidth + (e.clientX - startX), 50);
+        const newHeight = Math.max(startHeight + (e.clientY - startY), 30);
+        textBox.style.width = `${newWidth}px`;
+        textBox.style.height = `${newHeight}px`;
 
-      // Apply new width and height to the text box
-      textBox.style.width = `${newWidth}px`;
-      textBox.style.height = `${newHeight}px`;
+        // ** Scale text proportionally based on the height change **
+        const scaleFactor = newHeight / startHeight;
+        const newFontSize = Math.max(startFontSize * scaleFactor, 10); // Ensure minimum font size
 
-      // Update the size in the layers state
-      setLayers((prevLayers) =>
-        prevLayers.map((layer) =>
-          layer.id === layerId
-            ? { ...layer, size: { width: newWidth, height: newHeight } }
-            : layer
-        )
-      );
+        input.style.fontSize = `${newFontSize}px`; // Apply new font size
+
+        // Update the text size in the layers state
+        setLayers((prevLayers) =>
+            prevLayers.map((layer) =>
+                layer.id === layerId
+                    ? { ...layer, style: { ...layer.style, fontSize: `${newFontSize}px` } }
+                    : layer
+            )
+        );
     };
 
     const handleResizeEnd = () => {
-      document.removeEventListener("mousemove", handleResizing);
-      document.removeEventListener("mouseup", handleResizeEnd);
-      saveState(); // Save the current state after resizing
+        document.removeEventListener("mousemove", handleResizing);
+        document.removeEventListener("mouseup", handleResizeEnd);
+        saveState();
     };
 
     document.addEventListener("mousemove", handleResizing);
