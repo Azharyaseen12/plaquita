@@ -830,15 +830,18 @@ const TShirtCustomizer = () => {
     });
 
     ctx.restore(); // Restore the canvas state after clipping
-
+    const link = document.createElement("a");
+    link.download = "tshirt_design.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
     // Convert the clipped canvas to an image and open it in a new window for printing
-    const dataUrl = canvas.toDataURL("image/png");
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      `<html><head><title>Print T-Shirt Design</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background-color:white;"><img src="${dataUrl}" style="max-width:100%;height:auto;"></body></html>`
-    );
-    printWindow.document.close();
-    printWindow.print();
+    // const dataUrl = canvas.toDataURL("image/png");
+    // const printWindow = window.open("", "_blank");
+    // printWindow.document.write(
+    //   `<html><head><title>Print T-Shirt Design</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background-color:white;"><img src="${dataUrl}" style="max-width:100%;height:auto;"></body></html>`
+    // );
+    // printWindow.document.close();
+    // printWindow.print();
   };
 
   return (
@@ -990,7 +993,7 @@ const TShirtCustomizer = () => {
                     {[
                       { icon: "fa-undo", label: "Undo", action: undo },
                       { icon: "fa-redo", label: "Redo", action: redo },
-                      { icon: "fa-print", label: "Print", action: DownloadCanvas },
+                      { icon: "fa-print", label: "Download", action: DownloadCanvas },
                       {
                         icon: "fa-save",
                         label: "Save",
