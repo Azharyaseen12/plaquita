@@ -81,15 +81,24 @@ const TShirtCustomizer = () => {
   
     checkDragRegionContent(); // Update drag region border visibility
   };
+  const getSelectedLayerType = () => {
+    const selectedLayer = layers.find((layer) => layer.id === selectedLayerId);
+    console.log(selectedLayer ? selectedLayer.type : null)
+    return selectedLayer ? selectedLayer.type : null;
+  };
   
-
   // Update the layer's state or handle other changes (drag, resize, etc.)
+  const [selectedLayerType, setSelectedLayerType] = useState(null);
+
   useEffect(() => {
     if (selectedLayerId) {
       highlightSelectedLayer(selectedLayerId); // Highlight the selected layer
+      setSelectedLayerType(getSelectedLayerType()); // Update selected layer type
+    } else {
+      setSelectedLayerType(null); // Reset if no layer is selected
     }
-  }, [selectedLayerId]);
-
+  }, [selectedLayerId, layers]);
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -736,7 +745,7 @@ const TShirtCustomizer = () => {
     link.click();
   };
 
-  const printCanvas = () => {
+  const DownloadCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const image = imgRef.current;
@@ -922,7 +931,7 @@ const TShirtCustomizer = () => {
                     updateTextStyle={updateTextStyle}
                     addText={addText}
                     addTemplate={addTemplate}
-                    handleDragStart={handleDragStart}
+                    selectedLayerType={selectedLayerType}
                   />
                 ) : activeSidebar === "clipart" ? (
                   <ClipartSection addClipartToCanvas={addClipartToCanvas} />
@@ -981,7 +990,7 @@ const TShirtCustomizer = () => {
                     {[
                       { icon: "fa-undo", label: "Undo", action: undo },
                       { icon: "fa-redo", label: "Redo", action: redo },
-                      { icon: "fa-print", label: "Print", action: printCanvas },
+                      { icon: "fa-print", label: "Print", action: DownloadCanvas },
                       {
                         icon: "fa-save",
                         label: "Save",

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "./AddTextOptions.css"; // Import CSS file
 
-const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
+const AddTextOptions = ({ updateTextStyle, addText, addTemplate, selectedLayerType }) => {
+  const isImageSelected = selectedLayerType === "clipart";
   const [fontSize, setFontSize] = useState(16);
   const [outline, setOutline] = useState(0);
   const [outlineColor, setOutlineColor] = useState("#000000");
@@ -35,6 +36,7 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
           <select
             className="custom-select"
             onChange={(e) => updateTextStyle("fontFamily", e.target.value)}
+            disabled={isImageSelected} 
           >
             {[
               "Arial",
@@ -60,6 +62,7 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
             type="color"
             className="color-picker"
             onChange={(e) => updateTextStyle("color", e.target.value)}
+            disabled={isImageSelected}
           />
         </div>
       </div>
@@ -79,6 +82,7 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
                 setFontSize(e.target.value);
                 updateTextStyle("fontSize", `${e.target.value}px`);
               }}
+              disabled={isImageSelected}
             />
           </div>
         </div>
@@ -88,18 +92,21 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
             <button
               className={isBold ? "active" : ""}
               onClick={() => toggleStyle("fontWeight")}
+              disabled={isImageSelected}
             >
               B
             </button>
             <button
               className={isItalic ? "active" : ""}
               onClick={() => toggleStyle("fontStyle")}
+              disabled={isImageSelected}
             >
               I
             </button>
             <button
               className={isUnderline ? "active" : ""}
               onClick={() => toggleStyle("textDecoration")}
+              disabled={isImageSelected}
             >
               U
             </button>
@@ -111,10 +118,10 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
       <div className="option-group position-controls">
         <label>Position</label>
         <div className="position-buttons">
-          <button onClick={() => updateTextStyle("top", "-10px")}>↑</button>
-          <button onClick={() => updateTextStyle("left", "10px")}>→</button>
-          <button onClick={() => updateTextStyle("right", "-10px")}>←</button>
-          <button onClick={() => updateTextStyle("bottom", "10px")}>↓</button>
+          <button onClick={() => updateTextStyle("top", "-10px")} disabled={isImageSelected}>↑</button>
+          <button onClick={() => updateTextStyle("left", "10px")} disabled={isImageSelected}>→</button>
+          <button onClick={() => updateTextStyle("right", "-10px")} disabled={isImageSelected}>←</button>
+          <button onClick={() => updateTextStyle("bottom", "10px")} disabled={isImageSelected}>↓</button>
         </div>
       </div>
 
@@ -132,6 +139,7 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
               setOutline(e.target.value);
               updateTextStyle("WebkitTextStrokeWidth", `${e.target.value}px`);
             }}
+            disabled={isImageSelected}
           />
         </div>
         <div className="outline-value">
@@ -144,6 +152,7 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
               setOutline(e.target.value);
               updateTextStyle("WebkitTextStrokeWidth", `${e.target.value}px`);
             }}
+            disabled={isImageSelected}
           />
         </div>
         <div className="option-group">
@@ -156,6 +165,7 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate }) => {
               setOutlineColor(e.target.value);
               updateTextStyle("WebkitTextStrokeColor", e.target.value);
             }}
+            disabled={isImageSelected}
           />
         </div>
       </div>
