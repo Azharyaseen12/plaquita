@@ -1,8 +1,26 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import "./AddTextOptions.css"; // Import CSS file
 
-const AddTextOptions = ({ updateTextStyle, addText, addTemplate, selectedLayerType }) => {
+const AddTextOptions = ({
+  updateTextStyle,
+  addText,
+  addTemplate,
+  selectedLayerType,
+  selectedLayerId,
+  selectedLayerText,
+  updateLayerText, // Function to update the text in the layer
+}) => {
   const isImageSelected = selectedLayerType === "clipart";
+  const [textInput, setTextInput] = useState("");
+  useEffect(() => {
+    setTextInput(selectedLayerText);
+  }, [selectedLayerText]);
+
+  const handleTextChange = (e) => {
+    const newText = e.target.value;
+    setTextInput(newText);
+    updateLayerText(selectedLayerId, newText); // Update text in the main component
+  };
   const [fontSize, setFontSize] = useState(16);
   const [outline, setOutline] = useState(0);
   const [outlineColor, setOutlineColor] = useState("#000000");
@@ -30,6 +48,23 @@ const AddTextOptions = ({ updateTextStyle, addText, addTemplate, selectedLayerTy
   return (
     <div className="text-options-container">
       {/* Font Family & Color Selection */}
+      <div className="option-group">
+        <h2 className="tshirt-titile-option">Unisex Staple T-Shirt</h2>
+        {/* Rating Section */}
+        <div className="rating-container">
+          <span className="rating-value">4.5</span>
+          <span className="star">⭐</span>
+        </div>
+        <label className="text-lable-option">Text</label>
+        <textarea
+          className="text-area-options"
+          value={textInput}
+          onChange={handleTextChange}
+          disabled={isImageSelected}
+          rows={4} // Adjust the number of visible lines
+          placeholder="Enter text here..."
+        />
+      </div>
       <div className="option-row">
         <div className="option-group">
           <label>Font Family</label>

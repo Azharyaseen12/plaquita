@@ -86,6 +86,13 @@ const TShirtCustomizer = () => {
     console.log(selectedLayer ? selectedLayer.type : null)
     return selectedLayer ? selectedLayer.type : null;
   };
+  const getSelectedLayerDetails = () => {
+    const selectedLayer = layers.find((layer) => layer.id === selectedLayerId);
+    return selectedLayer
+      ? { id: selectedLayer.id, type: selectedLayer.type, content: selectedLayer.content || "" }
+      : { id: null, type: null, content: "" };
+  };
+  
   
   // Update the layer's state or handle other changes (drag, resize, etc.)
   const [selectedLayerType, setSelectedLayerType] = useState(null);
@@ -521,7 +528,23 @@ const TShirtCustomizer = () => {
         handleResizeStart(e, textBox, layerId)
       );
   };
-
+  const updateLayerText = (layerId, newText) => {
+    setLayers((prevLayers) =>
+      prevLayers.map((layer) =>
+        layer.id === layerId ? { ...layer, content: newText } : layer
+      )
+    );
+  
+    // Update the actual text inside the input box in the DOM
+    const layerElement = document.getElementById(layerId);
+    if (layerElement) {
+      const input = layerElement.querySelector("input");
+      if (input) {
+        input.value = newText;
+      }
+    }
+  };
+  
   const addClipartToCanvas = (
     clipartSrc,
     positionTop = "50px",
@@ -926,7 +949,7 @@ const TShirtCustomizer = () => {
           <div className="col-lg-10 col-md-9">
             <div className="row">
               {/* Left Section */}
-              <div className="col-lg-4 col-md-12 pt-4 mb-4 left-section">
+              <div className="col-lg-4 col-md-12 pt-4 pb-4 left-section">
                 {activeSidebar === "product" ? (
                   <ProductOptions changeColor={changeColor} />
                 ) : activeSidebar === "addText" ? (
@@ -934,7 +957,10 @@ const TShirtCustomizer = () => {
                     updateTextStyle={updateTextStyle}
                     addText={addText}
                     addTemplate={addTemplate}
-                    selectedLayerType={selectedLayerType}
+                    selectedLayerType={getSelectedLayerDetails().type}
+                    selectedLayerId={getSelectedLayerDetails().id}
+                    selectedLayerText={getSelectedLayerDetails().content}
+                    updateLayerText={updateLayerText} // Pass function to update text dynamically
                   />
                 ) : activeSidebar === "clipart" ? (
                   <ClipartSection addClipartToCanvas={addClipartToCanvas} />
@@ -953,7 +979,7 @@ const TShirtCustomizer = () => {
 
               {/* Right Section */}
               <div className="col-lg-8 col-md-12 pt-4 right-section">
-                <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="d-flex justify-content-between align-items-center">
                   <div className="product-tabs">
                     {["Front", "Back", "Left Sleeve", "Right Sleeve"].map(
                       (tab, index) => (
