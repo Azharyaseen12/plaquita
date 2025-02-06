@@ -410,11 +410,11 @@ h1 {
   }
   
   .template {
-    border: 1px solid #ccc;
+    border: none;
     padding: 10px;
     cursor: pointer;
-    border-radius: 5px;
     text-align: center;
+    background: none;
     transition: background-color 0.3s ease;
   }
   

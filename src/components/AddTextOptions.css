@@ -1,0 +1,292 @@
+/* Main container */
+.text-options-container {
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  max-width: 100%;
+  font-family: "Montserrat", sans-serif;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Each Option Group */
+.option-group {
+  margin-bottom: 15px;
+}
+
+/* Labels */
+.option-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+/* Font Family Selector */
+.custom-select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+/* Color Picker */
+.color-picker {
+  width: 100%;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+}
+
+/* Font Size Input */
+.font-size-input {
+  width: 100%;
+  padding: 5px;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+/* Font Style Buttons */
+.font-style {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.style-buttons button {
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  margin: 0 5px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #f4f4f4;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.style-buttons button:hover {
+  background: #e0e0e0;
+}
+
+/* Position Buttons */
+.position-controls {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+}
+
+.position-buttons button {
+  width: 90px;
+  height: 40px;
+  border: none;
+  margin: 3px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 18px;
+  background: #f4f4f4;
+  transition: background 0.2s;
+}
+
+.position-buttons button:hover {
+  background: #e0e0e0;
+}
+
+/* Outline Controls */
+.outline-slider {
+  width: 100%;
+}
+
+/* Outline Value Box */
+.outline-value input {
+  width: 50px;
+  padding: 5px;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+/* Text Shape Buttons */
+.shape-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.shape-buttons button {
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #f4f4f4;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.shape-buttons button:hover {
+  background: #e0e0e0;
+}
+
+/* Add Text Button */
+.add-text-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-text-btn:hover {
+  background: #0056b3;
+}
+
+/* Row Layout for Options */
+.option-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.text-options-container {
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  font-family: "Montserrat", sans-serif;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Option Groups */
+.option-group {
+  margin-bottom: 15px;
+}
+
+/* Labels */
+.option-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+/* Font Selectors */
+.custom-select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+/* Color Pickers */
+.color-picker {
+  width: 40px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+}
+
+/* Font Size Controls */
+.font-size-controls {
+  display: flex;
+  align-items: center;
+}
+
+.font-size-controls button {
+  width: 30px;
+  height: 30px;
+  background: #f4f4f4;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.font-size-input {
+  width: 50px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Position & Outline */
+.position-buttons button {
+  background: #f4f4f4;
+  border: none;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 18px;
+  border-radius: 5px;
+}
+
+.outline-slider {
+  width: 100%;
+}
+
+/* Add Text Button */
+.add-text-btn {
+  width: 100%;
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.add-text-btn:hover {
+  background: #0056b3;
+}
+/* Predefined Templates Section */
+.predefined-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.template {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  min-width: 80px;
+  text-align: center;
+  background: #f9f9f9;
+}
+
+.template:hover {
+  background: #e0e0e0;
+  transform: scale(1.1);
+}
+
+.template p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+

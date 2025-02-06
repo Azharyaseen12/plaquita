@@ -922,6 +922,7 @@ const TShirtCustomizer = () => {
                     updateTextStyle={updateTextStyle}
                     addText={addText}
                     addTemplate={addTemplate}
+                    handleDragStart={handleDragStart}
                   />
                 ) : activeSidebar === "clipart" ? (
                   <ClipartSection addClipartToCanvas={addClipartToCanvas} />
