@@ -6,24 +6,34 @@ const ProductOptions = ({ changeColor }) => {
       <h3>Unisex Staple T-Shirt</h3>
       <div className="d-flex align-items-center mb-3">
         <span className="text-warning me-2">4.5 &#9733;</span>
-        <button className="btn btn-outline-primary btn-sm">
+      </div>
+      <button style={{ background: '#293B91', color:'white' }} className="btn btn-outline-primary btn-sm w-100 mb-3 p-3">
           Change Product
         </button>
-      </div>
       <div>
         <h5>Color</h5>
         <div className="color-options d-flex flex-wrap">
           {[
-            "rgb(255, 0, 0)",
-            "rgb(0, 0, 255)",
-            "rgb(0, 255, 0)",
-            "rgb(255, 255, 0)",
-            "rgb(128, 0, 128)",
-            "rgb(0, 0, 0)",
-            "rgb(255, 192, 203)",
-            "rgb(255, 165, 0)",
-            "rgb(0, 128, 128)",
-            "rgb(165, 42, 42)",
+            "rgb(255, 0, 0)",   // Red
+            "rgb(255, 223, 79)", // Yellow
+            "rgb(0, 204, 0)",   // Green
+            "rgb(43, 40, 40)",     // Black
+            "rgb(47, 54, 153)", // Dark Blue
+            "rgb(211, 36, 130)", // Pink
+            "rgb(28, 157, 228)", // Blue
+            "rgb(195, 25, 130)", // Dark Pink
+            "rgb(255, 87, 87)", // Light Red
+            "rgb(120, 63, 193)", // Purple
+            "rgb(141, 99, 227)", // Light Purple
+            "rgb(194, 135, 247)", // Lavender
+            "rgb(72, 235, 215)", // Cyan
+            "rgb(132, 150, 234)", // Sky Blue
+            "rgb(93, 183, 166)", // Teal
+            "rgb(255, 140, 0)",  // Dark Orange
+            "rgb(128, 0, 0)",    // Maroon
+            "rgb(0, 128, 0)",    // Dark Green
+            "rgb(0, 255, 255)",  // Aqua
+            "rgb(255, 20, 147)"  // Deep Pink
           ].map((color) => (
             <button
               key={color}
@@ -33,7 +43,9 @@ const ProductOptions = ({ changeColor }) => {
                 height: "35px",
                 borderRadius: "10px",
                 border: "none",
-                margin: "10px",
+                margin: "5px",
+                outline: "2px solid white", // White outline for visibility
+                cursor: "pointer",
               }}
               onClick={() => changeColor(color)}
             ></button>
