@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./AddTextOptions.css"; // Import CSS file
 
 const AddTextOptions = ({
@@ -8,10 +8,34 @@ const AddTextOptions = ({
   selectedLayerType,
   selectedLayerId,
   selectedLayerText,
-  updateLayerText, // Function to update the text in the layer
+  selectedLayerPosition, // Ensure this is received
+  updateLayerText,
+  updateLayerPosition,
 }) => {
   const isImageSelected = selectedLayerType === "clipart";
   const [textInput, setTextInput] = useState("");
+  // Position update function
+  const handleMove = (direction) => {
+    if (!selectedLayerPosition) return; // Prevent errors if position is undefined
+    const { top, left } = selectedLayerPosition;
+
+    const newPosition = {
+      top:
+        direction === "up"
+          ? `${parseInt(top) - 10}px`
+          : direction === "down"
+          ? `${parseInt(top) + 10}px`
+          : top,
+      left:
+        direction === "left"
+          ? `${parseInt(left) - 10}px`
+          : direction === "right"
+          ? `${parseInt(left) + 10}px`
+          : left,
+    };
+
+    updateLayerPosition(selectedLayerId, newPosition);
+  };
   useEffect(() => {
     setTextInput(selectedLayerText);
   }, [selectedLayerText]);
@@ -71,7 +95,7 @@ const AddTextOptions = ({
           <select
             className="custom-select"
             onChange={(e) => updateTextStyle("fontFamily", e.target.value)}
-            disabled={isImageSelected} 
+            disabled={isImageSelected}
           >
             {[
               "Arial",
@@ -150,13 +174,25 @@ const AddTextOptions = ({
       </div>
 
       {/* Position Controls */}
+      {/* Position Controls */}
       <div className="option-group position-controls">
         <label>Position</label>
         <div className="position-buttons">
-          <button onClick={() => updateTextStyle("top", "-10px")} disabled={isImageSelected}>↑</button>
-          <button onClick={() => updateTextStyle("left", "10px")} disabled={isImageSelected}>→</button>
-          <button onClick={() => updateTextStyle("right", "-10px")} disabled={isImageSelected}>←</button>
-          <button onClick={() => updateTextStyle("bottom", "10px")} disabled={isImageSelected}>↓</button>
+          <button onClick={() => handleMove("up")} disabled={isImageSelected}>
+            ↑
+          </button>
+          <button onClick={() => handleMove("left")} disabled={isImageSelected}>
+            ←
+          </button>
+          <button
+            onClick={() => handleMove("right")}
+            disabled={isImageSelected}
+          >
+            →
+          </button>
+          <button onClick={() => handleMove("down")} disabled={isImageSelected}>
+            ↓
+          </button>
         </div>
       </div>
 

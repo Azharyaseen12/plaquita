@@ -38,17 +38,17 @@ const TShirtCustomizer = () => {
       dragRegion.style.border = "none"; // Hide border if no selection
     }
   };
-    
+
   // Click event listener to detect clicks outside the layers
   document.addEventListener("click", (e) => {
     const dragRegion = dragRegionRef.current;
-    
+
     if (!dragRegion.contains(e.target)) {
       // If click is outside the drag region, deselect everything
       // highlightSelectedLayer(null);
     }
   });
-  
+
   // Function to highlight the selected layer
   const highlightSelectedLayer = (layerId) => {
     const layers = dragRegionRef.current.querySelectorAll(".text-area");
@@ -57,11 +57,11 @@ const TShirtCustomizer = () => {
       const rotateButton = layer.querySelector(".handle.rotate");
       const copyButton = layer.querySelector(".handle.copy");
       const resizeButton = layer.querySelector(".handle.resize");
-  
+
       if (layer.id === layerId) {
         layer.classList.add("selected"); // Mark the selected layer
         layer.style.border = "2px dashed gray"; // Add selection border
-  
+
         // Show controls for the selected layer
         closeButton.style.display = "block";
         rotateButton.style.display = "block";
@@ -70,7 +70,7 @@ const TShirtCustomizer = () => {
       } else {
         layer.classList.remove("selected"); // Remove selection from others
         layer.style.border = "none"; // Remove border
-  
+
         // Hide controls for unselected layers
         closeButton.style.display = "none";
         rotateButton.style.display = "none";
@@ -78,22 +78,31 @@ const TShirtCustomizer = () => {
         resizeButton.style.display = "none";
       }
     });
-  
+
     checkDragRegionContent(); // Update drag region border visibility
   };
   const getSelectedLayerType = () => {
     const selectedLayer = layers.find((layer) => layer.id === selectedLayerId);
-    console.log(selectedLayer ? selectedLayer.type : null)
+    console.log(selectedLayer ? selectedLayer.type : null);
     return selectedLayer ? selectedLayer.type : null;
   };
   const getSelectedLayerDetails = () => {
     const selectedLayer = layers.find((layer) => layer.id === selectedLayerId);
     return selectedLayer
-      ? { id: selectedLayer.id, type: selectedLayer.type, content: selectedLayer.content || "" }
-      : { id: null, type: null, content: "" };
+      ? {
+          id: selectedLayer.id,
+          type: selectedLayer.type,
+          content: selectedLayer.content || "",
+          position: selectedLayer.position || { top: "50px", left: "50px" }, // Ensure position is always defined
+        }
+      : {
+          id: null,
+          type: null,
+          content: "",
+          position: { top: "50px", left: "50px" },
+        };
   };
-  
-  
+
   // Update the layer's state or handle other changes (drag, resize, etc.)
   const [selectedLayerType, setSelectedLayerType] = useState(null);
 
@@ -105,7 +114,7 @@ const TShirtCustomizer = () => {
       setSelectedLayerType(null); // Reset if no layer is selected
     }
   }, [selectedLayerId, layers]);
-  
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -304,31 +313,34 @@ const TShirtCustomizer = () => {
     const computedStyle = window.getComputedStyle(input);
     const startFontSize = parseFloat(computedStyle.fontSize); // Get the initial font size
     const handleResizing = (e) => {
-        const newWidth = Math.max(startWidth + (e.clientX - startX), 50);
-        const newHeight = Math.max(startHeight + (e.clientY - startY), 30);
-        textBox.style.width = `${newWidth}px`;
-        textBox.style.height = `${newHeight}px`;
+      const newWidth = Math.max(startWidth + (e.clientX - startX), 50);
+      const newHeight = Math.max(startHeight + (e.clientY - startY), 30);
+      textBox.style.width = `${newWidth}px`;
+      textBox.style.height = `${newHeight}px`;
 
-        // ** Scale text proportionally based on the height change **
-        const scaleFactor = newHeight / startHeight;
-        const newFontSize = Math.max(startFontSize * scaleFactor, 10); // Ensure minimum font size
+      // ** Scale text proportionally based on the height change **
+      const scaleFactor = newHeight / startHeight;
+      const newFontSize = Math.max(startFontSize * scaleFactor, 10); // Ensure minimum font size
 
-        input.style.fontSize = `${newFontSize}px`; // Apply new font size
+      input.style.fontSize = `${newFontSize}px`; // Apply new font size
 
-        // Update the text size in the layers state
-        setLayers((prevLayers) =>
-            prevLayers.map((layer) =>
-                layer.id === layerId
-                    ? { ...layer, style: { ...layer.style, fontSize: `${newFontSize}px` } }
-                    : layer
-            )
-        );
+      // Update the text size in the layers state
+      setLayers((prevLayers) =>
+        prevLayers.map((layer) =>
+          layer.id === layerId
+            ? {
+                ...layer,
+                style: { ...layer.style, fontSize: `${newFontSize}px` },
+              }
+            : layer
+        )
+      );
     };
 
     const handleResizeEnd = () => {
-        document.removeEventListener("mousemove", handleResizing);
-        document.removeEventListener("mouseup", handleResizeEnd);
-        saveState();
+      document.removeEventListener("mousemove", handleResizing);
+      document.removeEventListener("mouseup", handleResizeEnd);
+      saveState();
     };
 
     document.addEventListener("mousemove", handleResizing);
@@ -534,7 +546,7 @@ const TShirtCustomizer = () => {
         layer.id === layerId ? { ...layer, content: newText } : layer
       )
     );
-  
+
     // Update the actual text inside the input box in the DOM
     const layerElement = document.getElementById(layerId);
     if (layerElement) {
@@ -544,7 +556,7 @@ const TShirtCustomizer = () => {
       }
     }
   };
-  
+
   const addClipartToCanvas = (
     clipartSrc,
     positionTop = "50px",
@@ -629,7 +641,6 @@ const TShirtCustomizer = () => {
         handleResizeStart(e, clipartBox, layerId)
       );
     }
-
   };
 
   const undo = () => {
@@ -866,6 +877,20 @@ const TShirtCustomizer = () => {
     // printWindow.document.close();
     // printWindow.print();
   };
+  const updateLayerPosition = (layerId, newPosition) => {
+    setLayers((prevLayers) =>
+      prevLayers.map((layer) =>
+        layer.id === layerId ? { ...layer, position: newPosition } : layer
+      )
+    );
+
+    // Apply changes to the actual DOM element
+    const textBox = document.getElementById(layerId);
+    if (textBox) {
+      textBox.style.top = newPosition.top;
+      textBox.style.left = newPosition.left;
+    }
+  };
 
   return (
     <div>
@@ -960,7 +985,9 @@ const TShirtCustomizer = () => {
                     selectedLayerType={getSelectedLayerDetails().type}
                     selectedLayerId={getSelectedLayerDetails().id}
                     selectedLayerText={getSelectedLayerDetails().content}
-                    updateLayerText={updateLayerText} // Pass function to update text dynamically
+                    selectedLayerPosition={getSelectedLayerDetails().position} // Ensure Position is sent
+                    updateLayerText={updateLayerText}
+                    updateLayerPosition={updateLayerPosition} // Function to update position
                   />
                 ) : activeSidebar === "clipart" ? (
                   <ClipartSection addClipartToCanvas={addClipartToCanvas} />
@@ -1019,7 +1046,11 @@ const TShirtCustomizer = () => {
                     {[
                       { icon: "fa-undo", label: "Undo", action: undo },
                       { icon: "fa-redo", label: "Redo", action: redo },
-                      { icon: "fa-print", label: "Download", action: DownloadCanvas },
+                      {
+                        icon: "fa-print",
+                        label: "Download",
+                        action: DownloadCanvas,
+                      },
                       {
                         icon: "fa-save",
                         label: "Save",
