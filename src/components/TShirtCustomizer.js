@@ -45,7 +45,7 @@ const TShirtCustomizer = () => {
     
     if (!dragRegion.contains(e.target)) {
       // If click is outside the drag region, deselect everything
-      highlightSelectedLayer(null);
+      // highlightSelectedLayer(null);
     }
   });
   
