@@ -84,7 +84,10 @@
   flex-direction: column;
   width: 100%;
 }
-
+.position-buttons{
+  display: flex;
+  justify-content: space-between;
+}
 .position-buttons button {
   width: 90px;
   height: 40px;
@@ -92,7 +95,7 @@
   margin: 3px;
   cursor: pointer;
   border-radius: 5px;
-  font-size: 18px;
+  font-size: 40px;
   background: #f4f4f4;
   transition: background 0.2s;
 }
