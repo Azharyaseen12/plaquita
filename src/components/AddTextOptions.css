@@ -150,6 +150,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.3s;
+  margin-top: 20px;
 }
 
 .add-text-btn:hover {
@@ -202,10 +203,11 @@
 
 /* Color Pickers */
 .color-picker {
-  width: 40px;
-  height: 30px;
-  border-radius: 5px;
+  width: 55px;
+  height: 40px;
+  border-radius: 12px;
   border: none;
+
 }
 
 /* Font Size Controls */
@@ -232,13 +234,14 @@
 
 /* Position & Outline */
 .position-buttons button {
-  background: #f4f4f4;
-  border: none;
-  width: 40px;
-  height: 40px;
+  background: none;
+  border: 1px solid #ccc;
+  width: 60px;
+  height: 60px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 30px;
   border-radius: 5px;
+
 }
 
 .outline-slider {

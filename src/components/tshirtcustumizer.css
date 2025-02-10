@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    /* background-color: #f8f9fa; */
   }
 
   .sidebar {
@@ -114,7 +114,7 @@ body {
   .action-buttons{
     padding: 10px 0px;
     border-radius: 58px;
-    margin: 20px 130px;
+    /* margin: 20px 130px; */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
@@ -129,7 +129,13 @@ body {
       flex-direction: column !important;
     }
   }
+  @media (max-width: 1400px) {
 
+
+    .right-section {
+      flex-direction: column;
+    }
+  }
   @media (max-width: 992px) {
     .sidebar {
       height: auto;
@@ -140,6 +146,7 @@ body {
     }
 
     .right-section {
+      flex-direction: column;
       height: auto;
     }
   }

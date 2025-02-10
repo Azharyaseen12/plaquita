@@ -11,7 +11,7 @@ import AddTextOptions from "./AddTextOptions";
 import ProductOptions from "./ProductOptions";
 import LayersOptions from "./LayersOptions";
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs for layers
-
+import OrderSummary from "./OrderSummary";
 const TShirtCustomizer = () => {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -33,7 +33,7 @@ const TShirtCustomizer = () => {
   const checkDragRegionContent = () => {
     const dragRegion = dragRegionRef.current;
     if (dragRegion.querySelector(".selected")) {
-      dragRegion.style.border = "2px dashed #999"; // Show border if a selection exists
+      dragRegion.style.border = "4px dashed #999"; // Show border if a selection exists
     } else {
       dragRegion.style.border = "none"; // Hide border if no selection
     }
@@ -60,7 +60,7 @@ const TShirtCustomizer = () => {
 
       if (layer.id === layerId) {
         layer.classList.add("selected"); // Mark the selected layer
-        layer.style.border = "2px dashed gray"; // Add selection border
+        layer.style.border = "2px dashed #999"; // Add selection border
 
         // Show controls for the selected layer
         closeButton.style.display = "block";
@@ -125,7 +125,7 @@ const TShirtCustomizer = () => {
     const checkDragRegionContent = () => {
       const dragRegion = dragRegionRef.current;
       if (dragRegion.querySelector(".selected")) {
-        dragRegion.style.border = "2px dashed #999"; // Show border if selection exists
+        dragRegion.style.border = "3px dashed #999"; // Show border if selection exists
       } else {
         dragRegion.style.border = "none"; // Hide border if no selection
       }
@@ -974,7 +974,7 @@ const TShirtCustomizer = () => {
           <div className="col-lg-10 col-md-9">
             <div className="row">
               {/* Left Section */}
-              <div className="col-lg-4 col-md-12 pt-4 pb-4 left-section">
+              <div className="col-lg-4 col-md-12 pt-4 pb-4 left-section" style={{ borderRight: "1px solid #ddd" }}>
                 {activeSidebar === "product" ? (
                   <ProductOptions changeColor={changeColor} />
                 ) : activeSidebar === "addText" ? (
@@ -1005,8 +1005,9 @@ const TShirtCustomizer = () => {
               </div>
 
               {/* Right Section */}
-              <div className="col-lg-8 col-md-12 pt-4 right-section">
-                <div className="d-flex justify-content-between align-items-center">
+              <div className="col-lg-8 col-md-12 pt-4 right-section d-flex" style={{ justifyContent: "space-between" }}>
+                <div>
+                <div className="d-flex justify-content-between align-items-center p-3">
                   <div className="product-tabs">
                     {["Front", "Back", "Left Sleeve", "Right Sleeve"].map(
                       (tab, index) => (
@@ -1019,9 +1020,7 @@ const TShirtCustomizer = () => {
                       )
                     )}
                   </div>
-                  <button className="btn btn-outline-danger btn-sm">
-                    Back to Shop
-                  </button>
+                 
                 </div>
                 <div className="text-center card p-3">
                   <div className="canvas-container">
@@ -1037,7 +1036,7 @@ const TShirtCustomizer = () => {
                       id="dragRegion"
                       style={{
                         position: "absolute",
-                        border: "2px dashed #999",
+                        border: "4px dashed #999",
                         ...dragRegionStyle,
                       }}
                     ></div>
@@ -1076,6 +1075,10 @@ const TShirtCustomizer = () => {
                   </div>
                 </div>
               </div>
+                <div>
+                   <OrderSummary />
+                </div>
+                </div>
             </div>
           </div>
         </div>
