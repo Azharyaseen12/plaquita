@@ -9,7 +9,7 @@ function Shapes({ addClipartToCanvas }) {
     <div>
       <h3>Select an Icon</h3>
       <p>Choose from the available shapes below:</p>
-      <div className="icon-list d-flex flex-wrap">
+      <div className="icon-list d-flex flex-wrap" style={{ justifyContent: "space-between" }}>
         {[
           { src: icon1, alt: "Leaf" },
           { src: icon2, alt: "Leaf 2" },

@@ -6,12 +6,41 @@ import clipart4 from "../cliparts/clipart4.png";
 import clipart5 from "../cliparts/clipart5.png";
 import clipart6 from "../cliparts/clipart6.png";
 import clipart7 from "../cliparts/clipart7.png";
+import { Dropdown } from "bootstrap";
 function ClipartSection({ addClipartToCanvas }) {
   return (
     <div>
-      <h3>Select Clipart</h3>
-      <p>Choose from the available cliparts below:</p>
-      <div className="clipart-gallery d-flex flex-wrap">
+      <h2 className="tshirt-titile-option">Unisex Staple T-Shirt</h2>
+      {/* Rating Section */}
+      <div className="rating-container">
+        <span className="rating-value">4.5</span>
+        <span className="star">⭐</span>
+      </div>
+      <input
+        className="search-for-clipart"
+        placeholder="Search Clip art"
+        type="text"
+        name=""
+        id="search-for-clipart"
+      />
+      <div className="dropdowns-container">
+        <div>
+          <select className="clipart-dropdown" name="" id="">
+            <option value="">All Cliparts</option>
+            <option value="option 1">Option 1</option>
+            <option value="option 2">Option 2</option>
+          </select>
+        </div>
+
+        <div>
+          <select  className="clipart-dropdown" name="" id="">
+            <option value="">Categories</option>
+            <option value="category 1">Category 1</option>
+            <option value="category 2">Category 2</option>
+          </select>
+        </div>
+      </div>
+      <div className="clipart-gallery d-flex flex-wrap" style={{ justifyContent: "space-between" }}>
         {[
           { src: clipart1, alt: "Clipart 1" },
           { src: clipart2, alt: "Clipart 2" },
