@@ -381,6 +381,47 @@ const TShirtCustomizer = () => {
       saveState(); // Save the updated state for undo/redo functionality
     }
   };
+// Function to enable rotation on an element
+function enableRotation(handleElement, textElement, saveState) {
+  handleElement.addEventListener("mousedown", (e) => {
+    e.stopPropagation(); // Prevent interfering with dragging
+
+    if (!textElement) return;
+
+    let rect = textElement.getBoundingClientRect();
+    let centerX = rect.left + rect.width / 2;
+    let centerY = rect.top + rect.height / 2;
+
+    const handleMouseMove = (event) => {
+      let dx = event.clientX - centerX;
+      let dy = event.clientY - centerY;
+
+      // Calculate new angle
+      let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+      // Normalize angle to avoid jumps
+      let newRotation = normalizeAngle(angle);
+
+      textElement.style.transform = `rotate(${newRotation}deg)`;
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      saveState();
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  });
+}
+
+// Function to normalize rotation angles correctly
+function normalizeAngle(angle) {
+  return ((angle % 360) + 360) % 360; // Keep angle between 0-360
+}
+
+// Usage inside `addText` function:
 
   // Function to add a new text layer
   const addText = (copyData = null) => {
@@ -471,6 +512,9 @@ const TShirtCustomizer = () => {
       .addEventListener("mousedown", (e) =>
         handleResizeStart(e, textBox, layerId)
       );
+      const rotateHandle = textBox.querySelector(".handle.rotate");
+      enableRotation(rotateHandle, textBox, saveState);
+      
   };
 
   const addTemplate = (
@@ -539,6 +583,8 @@ const TShirtCustomizer = () => {
       .addEventListener("mousedown", (e) =>
         handleResizeStart(e, textBox, layerId)
       );
+      const rotateHandle = textBox.querySelector(".handle.rotate");
+      enableRotation(rotateHandle, textBox, saveState);
   };
   const updateLayerText = (layerId, newText) => {
     setLayers((prevLayers) =>
@@ -635,6 +681,8 @@ const TShirtCustomizer = () => {
     clipartBox.addEventListener("mousedown", (e) =>
       handleDragStart(e, clipartBox, layerId)
     );
+    const rotateHandle = clipartBox.querySelector(".handle.rotate");
+    enableRotation(rotateHandle, clipartBox, saveState);
     const resizeHandle = clipartBox.querySelector(".handle.resize");
     if (resizeHandle) {
       resizeHandle.addEventListener("mousedown", (e) =>
