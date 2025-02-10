@@ -178,19 +178,18 @@ const AddTextOptions = ({
       <div className="option-group position-controls">
         <label>Position</label>
         <div className="position-buttons">
-          <button onClick={() => handleMove("up")} disabled={isImageSelected}>
+          <button onClick={() => handleMove("up")}>
             ↑
           </button>
-          <button onClick={() => handleMove("left")} disabled={isImageSelected}>
+          <button onClick={() => handleMove("left")}>
             ←
           </button>
           <button
             onClick={() => handleMove("right")}
-            disabled={isImageSelected}
           >
             →
           </button>
-          <button onClick={() => handleMove("down")} disabled={isImageSelected}>
+          <button onClick={() => handleMove("down")}>
             ↓
           </button>
         </div>

@@ -1,0 +1,60 @@
+/* Overlay to cover the screen */
+.upload-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Popup Container */
+  .upload-popup {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 350px;
+    position: relative;
+  }
+  
+  /* Close Button */
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  /* Upload Icon */
+  .upload-icon {
+    width: 50%;
+    /* margin-bottom: 15px; */
+  }
+  
+  /* Upload Button */
+  .upload-btn {
+    background: #1f3bb3;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .upload-btn:hover {
+    background: #182c8c;
+  }
+  
